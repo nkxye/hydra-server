@@ -12,7 +12,7 @@ const cropSchema = new mongoose.Schema({
     active: {
         type: Boolean,
         required: true,
-        default: false
+        default: true
     },
     crop_name: {
         type: String,
@@ -36,48 +36,48 @@ const cropSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
-    threshold_values: [{
+    threshold_values: {
         conductivity: {
             min: {
-                type: mongoose.Types.Decimal128,
+                type: mongoose.Decimal128,
                 required: true
             },
             max: {
-                type: mongoose.Types.Decimal128,
+                type: mongoose.Decimal128,
                 required: true
             }
         },
         humidity: {
             min: {
-                type: mongoose.Types.Decimal128,
+                type: mongoose.Decimal128,
                 required: true
             },
             max: {
-                type: mongoose.Types.Decimal128,
+                type: mongoose.Decimal128,
                 required: true
             }
         },
         ph_level: {
             min: {
-                type: mongoose.Types.Decimal128,
+                type: mongoose.Decimal128,
                 required: true
             },
             max: {
-                type: mongoose.Types.Decimal128,
+                type: mongoose.Decimal128,
                 required: true
             }
         },
         temperature: {
             min: {
-                type: mongoose.Types.Decimal128,
+                type: mongoose.Decimal128,
                 required: true
             },
             max: {
-                type: mongoose.Types.Decimal128,
+                type: mongoose.Decimal128,
                 required: true
             }
         }
-    }]
+    }
 }, {
     timestamps: true
 })
