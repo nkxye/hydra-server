@@ -1,11 +1,12 @@
 const express = require('express')
 const auth = require('../middleware/auth')
-const topics = require('../middleware/topics')
+// const topics = require('../middleware/topics')
 const cropController = require('../controllers/cropController')
+const router = new express.Router()
 const multer = require('multer')
 const upload = multer({
     limits: {
-        fileSize: 3000000 // 1mb limit for images
+        fileSize: 3000000 // 3mb limit for images
     },
     fileFilter(req, file, callback) {
         if (!file.originalname.match(/\.(gif|jpe?g|tiff?|png)$/)) {
@@ -16,8 +17,6 @@ const upload = multer({
         }
     }
 })
-
-const router = new express.Router()
 
 /**
  * Start New Crop.
@@ -62,6 +61,17 @@ router.post('/crop/harvest', auth, cropController.harvestCrop)
  * @param {Object} auth                Auth middleware to validate token.
  * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
  */
-router.get('/crop/:cropName', topics, cropController.getCropData)
+// router.get('/crop/:cropName', topics, cropController.getCropData)
+
+/**
+ * Get Crop Data.
+ *
+ * Sends the crop data based on the latest published data from the MQTT topic/s.
+ *
+ * @param {String} route path          The endpoint at which requests can be made.
+ * @param {Object} auth                Auth middleware to validate token.
+ * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
+ */
+router.get('/crop/:cropName/image', cropController.getCropImage)
 
 module.exports = router
