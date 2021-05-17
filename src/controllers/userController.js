@@ -87,7 +87,7 @@ exports.updateCredentials = async (req, res) => {
     const validUpdate = fields.every((field) => revisableFields.includes(field))
 
     if (!validUpdate) {
-        return res.status(400).send({error: 'Invalid update!'})
+        return res.status(500).send({error: 'Invalid update!'})
     }
 
     try {
