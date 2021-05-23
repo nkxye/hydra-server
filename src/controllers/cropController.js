@@ -1,4 +1,5 @@
 const Crop = require('../models/crop')
+const mqttClient = require('../middleware/mqtt_client')
 
 /**
  * Start New Crop.
@@ -55,13 +56,26 @@ exports.startNewCrop = async (req, res) => {
             })
 
             if (podExists) {
+                let data = {
+                    "pod_name": req.body.setupName, // pod name should be lower kebabcase
+                    "air_humidity": [parseFloat(req.body.humidityStart), parseFloat(req.body.humidityEnd)],
+                    "air_temperature": [parseFloat(req.body.tempStart), parseFloat(req.body.tempEnd)],
+                    "ec_reading": [parseFloat(req.body.conductivityStart), parseFloat(req.body.conductivityEnd)],
+                    "ph_reading": [parseFloat(req.body.phStart), parseFloat(req.body.phEnd)]
+                }
+
+                if (initializePumps) {
+                    mqttClient.publishNewCropSettings(crop.pod_name, data)
+                    mqttClient.initializePumps(crop.pod_name, '1')
+                } else {
+                    mqttClient.publishNewCropSettings(crop.pod_name, data)
+                    mqttClient.initializePumps(crop.pod_name, '0')
+                }
+
                 await crop.save()
                 await req.user.save()
-                res.status(201).send(crop)
 
-                // if (initializePumps) {
-                //     // TODO: initialize pumps publish logic
-                // }
+                res.status(201).send(crop)
             } else {
                 return res.status(400).send({error: 'Pod name does not exist!'})
             }
@@ -83,21 +97,25 @@ exports.startNewCrop = async (req, res) => {
  */
 exports.changeThreshold = async (req, res) => {
     // TODO: crop settings logic
-    // const fields = Object.keys(req.body)
-    // const revisableFields = ['email', 'password']
-    // const validUpdate = fields.every((field) => revisableFields.includes(field))
-    //
-    // if (!validUpdate) {
-    //     return res.status(400).send({error: 'Invalid update!'})
-    // }
-    //
-    // try {
-    //     fields.forEach((field) => req.user[field] = req.body[field])
-    //     await req.user.save()
-    //     res.status(202).send(req.user)
-    // } catch (e) {
-    //     res.status(500).send(e)
-    // }
+    // TODO: mqtt publish logic
+    const fields = Object.keys(req.body)
+    const revisableFields = ['cropName', 'conductivityStart', 'conductivityEnd', 'humidityStart',
+        'humidityEnd', 'phStart', 'phEnd', 'tempStart', 'tempEnd']
+    const validUpdate = fields.every((field) => revisableFields.includes(field))
+
+    if (!validUpdate) {
+        return res.status(400).send({error: 'Invalid update!'})
+    }
+
+    try {
+        fields.forEach((field) => {
+            req.user[field] = req.body[field]
+        })
+        await req.user.save()
+        res.status(202).send(req.user)
+    } catch (e) {
+        res.status(500).send(e)
+    }
 }
 
 /**
@@ -110,9 +128,20 @@ exports.changeThreshold = async (req, res) => {
  */
 exports.harvestCrop = async (req, res) => {
     try {
-        const crop = await Crop.findOne({'crop_name': req.params.cropName})
+        // searches only for an active crop to avoid detecting past crops with the same crop name
+        const crop = await Crop.findOne({'crop_name': req.params.cropName, 'active': true})
         crop.active = false
+
+        req.user.pods_owned.forEach((pod) => {
+            if (pod.pod_name === crop.pod_name) {
+                pod.occupied = false
+            }
+        })
+
+        await req.user.save()
         await crop.save()
+
+        mqttClient.harvestCrop(crop.pod_name, '1')
 
         // TODO: crop history report derivation logic
 
@@ -132,7 +161,7 @@ exports.harvestCrop = async (req, res) => {
  */
 exports.getCropData = async (req, res) => {
     // res.status(200).send(req.crop)
-    // TODO: crop data logic with topic middleware
+    // TODO: crop data logic via sensor data
 }
 
 /**

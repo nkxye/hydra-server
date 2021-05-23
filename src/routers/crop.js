@@ -1,9 +1,9 @@
 const express = require('express')
 const auth = require('../middleware/auth')
-// const topics = require('../middleware/topics')
 const cropController = require('../controllers/cropController')
 const router = new express.Router()
 const multer = require('multer')
+
 const upload = multer({
     limits: {
         fileSize: 3000000 // 3mb limit for images
@@ -61,7 +61,7 @@ router.post('/crop/harvest', auth, cropController.harvestCrop)
  * @param {Object} auth                Auth middleware to validate token.
  * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
  */
-// router.get('/crop/:cropName', topics, cropController.getCropData)
+router.get('/crop/:podName', cropController.getCropData)
 
 /**
  * Get Crop Data.
