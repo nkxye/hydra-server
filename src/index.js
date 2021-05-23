@@ -7,9 +7,19 @@ const mqttClient = require('./middleware/mqtt_client')
 
 const app = express()
 const port = process.env.PORT
+const whitelist = ['http://localhost:3000'] // port for client-side
 
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+    origin: (origin, callback) => {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(undefined, true)
+        } else {
+            callback(new Error('The origin is not authorized to send requests.'))
+        }
+    }
+}))
+
 app.use(userRouter)
 app.use(cropRouter)
 
