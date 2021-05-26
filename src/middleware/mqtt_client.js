@@ -38,9 +38,9 @@ class MqttClient {
         this.client.subscribe(podName + '/sensor_data')
     }
 
-    // publish JSON to topic :podName/commands/new_crop
+    // publish JSON to topic :podName/commands/new_crop/
     publishNewCropSettings(podName, data) {
-        let topic = podName + '/commands/new_crop'
+        let topic = podName + '/commands/new_crop/'
 
         try {
             this.client.publish(topic, JSON.stringify(data), {
@@ -52,35 +52,44 @@ class MqttClient {
         }
     }
 
-    // publish JSON to topic :podName/commands/init_pumps
-    initializePumps(podName, answer) {
-        let topic = podName + '/commands/init_pumps'
-
-        try {
-            this.client.publish(topic, answer)
-        } catch (e) {
-            console.error(e)
-        }
-    }
-
-    // publish JSON to topic :podName/commands/change_value/sensor
+    // publish JSON to topic :podName/commands/change_value/sensor/
     publishRevisedCropSettings(podName, sensor, data) {
-        let topic = podName + '/commands/change_value/' + sensor
+        let sensors = ['air_humidity', 'air_temperature', 'ec_reading', 'ph_reading']
 
-        try {
-            this.client.publish(topic, data)
-        } catch (e) {
-            console.error(e)
+        if (sensors.indexOf(sensor) !== -1) {
+            let topic = podName + '/commands/change_value/' + sensor + "/"
+
+            try {
+                this.client.publish(topic, JSON.stringify(data), {
+                    qos: 0,
+                    retain: true
+                })
+            } catch (e) {
+                console.error(e)
+            }
+        } else {
+            console.error('Sensor name is invalid.')
         }
     }
 
-    harvestCrop(podName, data) {
+    publishCropHarvest(podName, data) {
         let harvestTopic = podName + '/commands/harvest/'
         let newCropTopic = podName + '/commands/new_crop/'
+        let changeValueTopic = podName + '/commands/change_value/'
+        let sensors = ['air_humidity', 'air_temperature', 'ec_reading', 'ph_reading']
 
         try {
-            this.client.publish(harvestTopic, data)
             this.client.publish(newCropTopic, '', {
+                qos: 0,
+                retain: false
+            })
+            sensors.forEach((sensor) => {
+                this.client.publish(changeValueTopic + sensor + '/', '', {
+                    qos: 0,
+                    retain: false
+                })
+            })
+            this.client.publish(harvestTopic, data, {
                 qos: 0,
                 retain: false
             })

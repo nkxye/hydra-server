@@ -39,7 +39,7 @@ router.post('/crop/new', auth, upload.single('cropImage'), cropController.startN
  * @param {Object} auth                Auth middleware to validate token.
  * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
  */
-router.patch('/crop/:cropName/update', auth, cropController.changeThreshold)
+router.patch('/crop/:podName/update', auth, upload.single('cropImage'), cropController.changeThreshold)
 
 /**
  * Harvest Crop.
@@ -50,10 +50,10 @@ router.patch('/crop/:cropName/update', auth, cropController.changeThreshold)
  * @param {Object} auth                Auth middleware to validate token.
  * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
  */
-router.post('/crop/harvest', auth, cropController.harvestCrop)
+router.patch('/crop/:podName/harvest', auth, cropController.harvestCrop)
 
 /**
- * Get Crop Data.
+ * Get Active Crop Data.
  *
  * Sends the crop data based on the latest published data from the MQTT topic/s.
  *
@@ -61,17 +61,18 @@ router.post('/crop/harvest', auth, cropController.harvestCrop)
  * @param {Object} auth                Auth middleware to validate token.
  * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
  */
-router.get('/crop/:podName', cropController.getCropData)
+router.get('/crop/:podName', cropController.getActiveCropData)
+
+// END OF ACTIVE CROP ROUTES. BELOW ARE GENERAL CROP-RELATED ROUTES
 
 /**
- * Get Crop Data.
+ * Get Crop Image.
  *
- * Sends the crop data based on the latest published data from the MQTT topic/s.
+ * Renders the crop image for img src tag usage.
  *
  * @param {String} route path          The endpoint at which requests can be made.
- * @param {Object} auth                Auth middleware to validate token.
  * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
  */
-router.get('/crop/:cropName/image', cropController.getCropImage)
+router.get('/crop/:cropId/image', cropController.getCropImage)
 
 module.exports = router
