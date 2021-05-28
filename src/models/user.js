@@ -103,7 +103,7 @@ userSchema.methods.getPodsOwned = function () {
 /**
  * JSON Format for the User Object.
  *
- * This instance method excludes the password and tokens by default when printing out the User object in JSON.
+ * This instance method excludes the password and tokens by default when returning the User object in JSON.
  * NOTE: Do not use arrow function as it does not allow "this" keyword binding.
  *
  * @return {Object} adminInfo   The User object of the admin.

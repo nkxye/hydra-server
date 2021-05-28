@@ -3,14 +3,13 @@ const auth = require('../middleware/auth')
 const cropController = require('../controllers/cropController')
 const router = new express.Router()
 const multer = require('multer')
-
 const upload = multer({
     limits: {
         fileSize: 3000000 // 3mb limit for images
     },
     fileFilter(req, file, callback) {
         if (!file.originalname.match(/\.(gif|jpe?g|tiff?|png)$/)) {
-            return callback(new Error('File must be an image. Please try again.'))
+            return callback(new Error('File must be an image in GIF/JPEG/TIFF/PNG format. Please try again.'))
         } else {
             req.content_type = file.mimetype
             callback(undefined, true)
@@ -68,11 +67,13 @@ router.get('/crop/:podName', cropController.getActiveCropData)
 /**
  * Get Crop Image.
  *
- * Renders the crop image for img src tag usage.
+ * Renders the crop image from binary to its respective file type for img src tag usage.
  *
  * @param {String} route path          The endpoint at which requests can be made.
  * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
  */
 router.get('/crop/:cropId/image', cropController.getCropImage)
+
+// TODO: get past crops (for History)
 
 module.exports = router

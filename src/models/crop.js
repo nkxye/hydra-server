@@ -84,12 +84,12 @@ const cropSchema = new mongoose.Schema({
 })
 
 /**
- * JSON Format for the User Object.
+ * JSON Format for the Crop Object.
  *
- * This instance method excludes the password and tokens by default when printing out the User object in JSON.
+ * This instance method excludes initialize_pumps and image binary by default when returning the Crop object in JSON.
  * NOTE: Do not use arrow function as it does not allow "this" keyword binding.
  *
- * @return {Object} adminInfo   The User object of the admin.
+ * @return {Object} cropInfo   The retrieved object for the specific crop.
  */
 cropSchema.methods.toJSON = function () {
     const cropInfo = this.toObject()

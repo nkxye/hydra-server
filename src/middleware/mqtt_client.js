@@ -1,5 +1,11 @@
 const mqtt = require('mqtt')
 
+/**
+ * MqttClient Class.
+ *
+ * This middleware is responsible for all MQTT-related server-side processes.
+ * This is currently connected to a HiveMQ broker for (testing) and will be revised to cater to the local MQTT broker.
+ */
 class MqttClient {
     constructor() {
         this.client = null
@@ -33,9 +39,9 @@ class MqttClient {
         })
     }
 
-    // subscribe to topic :podName/sensor_data
+    // subscribe to topic :podName/sensor_data/
     subscribeToPod(podName) {
-        this.client.subscribe(podName + '/sensor_data')
+        this.client.subscribe(podName + '/sensor_data/')
     }
 
     // publish JSON to topic :podName/commands/new_crop/
