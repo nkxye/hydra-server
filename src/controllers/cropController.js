@@ -201,7 +201,7 @@ exports.getActiveCropData = async (req, res) => {
         // searches only for an active crop to avoid detecting past crops with the same crop name
         const crop = await Crop.findOne({'pod_name': req.params.podName, 'active': true})
         res.status(200).send(crop)
-        
+
         // TODO: crop data logic via sensor data
     } catch (e) {
         res.status(400).send(e)
