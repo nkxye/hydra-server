@@ -123,15 +123,6 @@ exports.changeThreshold = async (req, res) => {
         fields.forEach((field) => {
             let newValue = req.body[field]
 
-            // if (crop.isModified('threshold_values.conductivity.min') || crop.isModified('threshold_values.conductivity.max')) {
-            //     mqttClient.publishRevisedCropSettings(crop.pod_name, 'ec_reading', {
-            //         'ec_reading': [
-            //             parseFloat(crop.threshold_values.conductivity.min),
-            //             parseFloat(crop.threshold_values.conductivity.max)
-            //         ]
-            //     })
-            // }
-
             if (field === 'cropName' && crop.crop_name !== newValue) {
                 crop.crop_name = newValue
             } else if (field === 'conductivityStart' && crop.threshold_values.conductivity.min !== newValue) {
@@ -159,7 +150,7 @@ exports.changeThreshold = async (req, res) => {
         }
 
         await crop.save()
-        res.status(202).send(crop.threshold_values)
+        res.status(202).send('Your threshold changes have been saved successfully.')
     } catch (e) {
         res.status(500).send(e)
     }
@@ -207,8 +198,10 @@ exports.harvestCrop = async (req, res) => {
  */
 exports.getActiveCropData = async (req, res) => {
     try {
+        // searches only for an active crop to avoid detecting past crops with the same crop name
         const crop = await Crop.findOne({'pod_name': req.params.podName, 'active': true})
         res.status(200).send(crop)
+        
         // TODO: crop data logic via sensor data
     } catch (e) {
         res.status(400).send(e)
