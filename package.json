@@ -8,6 +8,10 @@
     "start": "node src/index.js",
     "dev": "env-cmd -f config/dev.env nodemon src/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nkxye/hydra-server.git"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
