@@ -11,85 +11,79 @@ const mqttClient = require('../middleware/mqtt_client')
  */
 exports.startNewCrop = async (req, res) => {
     try {
-        const activeCropExists = await Crop.findOne({'crop_name': req.body.cropName, 'active': true})
+        const initializePumps = (req.body.initializePumps === "on")
+        let podExists = false
+        let podAlreadyOccupied = false
 
-        if (activeCropExists) {
-            return res.status(400).send('An active crop with the same name already exists.')
-        } else {
-            const initializePumps = (req.body.initializePumps === "on")
-            let podExists = false
-            let podAlreadyOccupied = false
+        for (let i = 0; i < req.user.pods_owned.length; i++) {
+            if (req.user.pods_owned[i].pod_name === req.body.setupName) {
+                podExists = true
 
-            for (let i = 0; i < req.user.pods_owned.length; i++) {
-                if (req.user.pods_owned[i].pod_name === req.body.setupName) {
-                    podExists = true
-
-                    if (req.user.pods_owned[i].occupied) {
-                        podAlreadyOccupied = true
-                    } else {
-                        req.user.pods_owned[i].occupied = true
-                    }
-
-                    break
-                }
-            }
-
-            if (podExists) {
-                if (podAlreadyOccupied) {
-                    return res.status(400).send('Pod is already occupied!')
+                if (req.user.pods_owned[i].occupied) {
+                    podAlreadyOccupied = true
                 } else {
-                    const crop = new Crop({
-                        crop_name: req.body.cropName,
-                        pod_name: req.body.setupName,
-                        image: {
-                            image_bin: req.file.buffer,
-                            content_type: req.content_type,
-                        },
-                        initialize_pumps: initializePumps,
-                        threshold_values: {
-                            conductivity: {
-                                min: req.body.conductivityStart,
-                                max: req.body.conductivityEnd
-                            },
-                            humidity: {
-                                min: req.body.humidityStart,
-                                max: req.body.humidityEnd
-                            },
-                            ph_level: {
-                                min: req.body.phStart,
-                                max: req.body.phEnd
-                            },
-                            temperature: {
-                                min: req.body.tempStart,
-                                max: req.body.tempEnd
-                            }
-                        }
-                    })
-
-                    let data = {
-                        "pod_name": req.body.setupName, // pod name should be lower kebabcase
-                        "air_humidity": [parseFloat(req.body.humidityStart), parseFloat(req.body.humidityEnd)],
-                        "air_temperature": [parseFloat(req.body.tempStart), parseFloat(req.body.tempEnd)],
-                        "ec_reading": [parseFloat(req.body.conductivityStart), parseFloat(req.body.conductivityEnd)],
-                        "ph_reading": [parseFloat(req.body.phStart), parseFloat(req.body.phEnd)],
-                        "init_pumps": 0
-                    }
-
-                    if (initializePumps) {
-                        data['init_pumps'] = 1
-                        mqttClient.publishNewCropSettings(crop.pod_name, data)
-                    } else {
-                        mqttClient.publishNewCropSettings(crop.pod_name, data)
-                    }
-
-                    await crop.save()
-                    await req.user.save()
-
-                    res.status(201).send(crop)
+                    req.user.pods_owned[i].occupied = true
                 }
-            } else {
-                return res.status(400).send('Pod name does not exist!')
+
+                break
             }
+        }
+
+        if (podExists) {
+            if (podAlreadyOccupied) {
+                return res.status(400).send('Pod is already occupied!')
+            } else {
+                const crop = new Crop({
+                    crop_name: req.body.cropName,
+                    pod_name: req.body.setupName,
+                    image: {
+                        image_bin: req.file.buffer,
+                        content_type: req.content_type,
+                    },
+                    initialize_pumps: initializePumps,
+                    threshold_values: {
+                        conductivity: {
+                            min: req.body.conductivityStart,
+                            max: req.body.conductivityEnd
+                        },
+                        humidity: {
+                            min: req.body.humidityStart,
+                            max: req.body.humidityEnd
+                        },
+                        ph_level: {
+                            min: req.body.phStart,
+                            max: req.body.phEnd
+                        },
+                        temperature: {
+                            min: req.body.tempStart,
+                            max: req.body.tempEnd
+                        }
+                    }
+                })
+
+                let data = {
+                    "pod_name": req.body.setupName, // pod name should be lower kebabcase
+                    "air_humidity": [parseFloat(req.body.humidityStart), parseFloat(req.body.humidityEnd)],
+                    "air_temperature": [parseFloat(req.body.tempStart), parseFloat(req.body.tempEnd)],
+                    "ec_reading": [parseFloat(req.body.conductivityStart), parseFloat(req.body.conductivityEnd)],
+                    "ph_reading": [parseFloat(req.body.phStart), parseFloat(req.body.phEnd)],
+                    "init_pumps": 0
+                }
+
+                if (initializePumps) {
+                    data['init_pumps'] = 1
+                    mqttClient.publishNewCropSettings(crop.pod_name, data)
+                } else {
+                    mqttClient.publishNewCropSettings(crop.pod_name, data)
+                }
+
+                await crop.save()
+                await req.user.save()
+
+                res.status(201).send(crop)
+            }
+        } else {
+            return res.status(400).send('Pod name does not exist!')
         }
     } catch (e) {
         res.status(400).send(e)
