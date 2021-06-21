@@ -23,6 +23,7 @@ exports.startNewCrop = async (req, res) => {
                     podAlreadyOccupied = true
                 } else {
                     req.user.pods_owned[i].occupied = true
+                    await req.user.save()
                 }
 
                 break
@@ -78,7 +79,6 @@ exports.startNewCrop = async (req, res) => {
                 }
 
                 await crop.save()
-                await req.user.save()
 
                 res.status(201).send(crop)
             }
@@ -192,11 +192,10 @@ exports.harvestCrop = async (req, res) => {
  */
 exports.getActiveCropData = async (req, res) => {
     try {
+        // TODO: call sensor data's retrieveData
         // searches only for an active crop to avoid detecting past crops with the same crop name
         const crop = await Crop.findOne({'pod_name': req.params.podName, 'active': true})
         res.status(200).send(crop)
-
-        // TODO: crop data logic via sensor data
     } catch (e) {
         res.status(400).send(e)
     }
@@ -220,3 +219,5 @@ exports.getCropImage = async (req, res) => {
         res.status(200).send(crop.image.image_bin)
     }
 }
+
+// TODO: return list of all active crops for homepage

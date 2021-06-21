@@ -24,6 +24,9 @@ exports.registerAdmin = async (req, res) => {
                 pod_name: req.body.setupName
             })
 
+            // TODO: init sensor entries upon creation of pod
+            // TODO: get last will to let front end know that arduino is offline - get pod data
+
             await user.save()
             const token = await user.generateAuthToken()
             res.status(201).send({user, token})
@@ -110,3 +113,5 @@ exports.updateCredentials = async (req, res) => {
 exports.getAdminInfo = async (req, res) => {
     res.status(200).send(req.user)
 }
+
+// TODO: return list of unoccupied pods and list of presets

@@ -1,6 +1,6 @@
 const express = require('express')
 const auth = require('../middleware/auth')
-const cropController = require('../controllers/cropController')
+const cropController = require('../controllers/crop.controller')
 const router = new express.Router()
 const multer = require('multer')
 const upload = multer({
