@@ -158,6 +158,22 @@ cropSchema.pre('save', async function (next) {
     next()
 })
 
+/**
+ * Convert Crop Name to Titlecase
+ * Publish Changed Values to MQTT
+ *
+ * This function triggers before the Crop object gets saved to the database and converts the crop name to Titlecase,
+ * and then publishes detected changed values to the MQTT broker.
+ * NOTE: Do not use arrow function as it does not allow "this" keyword binding.
+ *
+ */
+cropSchema.post('save', async function (next) {
+    const crop = this
+
+
+    next()
+})
+
 const Crop = mongoose.model('Crop', cropSchema)
 
 module.exports = Crop

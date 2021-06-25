@@ -1,4 +1,5 @@
 const mqtt = require('mqtt')
+const sensorData = require('../controllers/sensor.controller')
 
 /**
  * MqttClient Class.
@@ -36,12 +37,14 @@ class MqttClient {
 
         this.client.on('message', function (topic, message) {
             // TODO: store message to Sensor Data collection
+            sensorData.retrieve(message)
         })
     }
 
     // subscribe to topic :podName/sensor_data/
     subscribeToPod(podName) {
         this.client.subscribe(podName + '/sensor_data/')
+        this.client.subscribe(podName + '/probe_data/')
     }
 
     // publish JSON to topic :podName/commands/new_crop/
