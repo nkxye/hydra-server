@@ -144,4 +144,19 @@ exports.getAdminInfo = async (req, res) => {
     res.status(200).send(req.user)
 }
 
-// TODO: return list of unoccupied pods and list of presets
+/**
+ * Get List of Vacant Pods.
+ *
+ * Sends a list of all the unoccupied pods to display on the "Setup Name" field of "Start New Crop".
+ *
+ * @param req   HTTP request argument to the middleware function
+ * @param res   HTTP response argument to the middleware function.
+ */
+exports.getVacantPods = async (req, res) => {
+    const vacantPods = JSON.stringify(req.user.pods_owned.filter((pod) =>  !pod.occupied))
+    const podNames = JSON.parse(vacantPods, (key, value) => (key !== 'occupied' && key !== '_id') ? value : key[-1]);
+
+    res.status(200).send(podNames)
+}
+
+// TODO: return list of presets

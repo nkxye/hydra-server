@@ -95,7 +95,7 @@ cropSchema.methods.toJSON = function () {
     const cropInfo = this.toObject()
 
     delete cropInfo.initialize_pumps
-    delete cropInfo.image
+    cropInfo.image = '/crop/' + cropInfo._id + '/image'
 
     return cropInfo
 }

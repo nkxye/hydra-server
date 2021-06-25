@@ -57,10 +57,19 @@ router.patch('/crop/:podName/harvest', auth, cropController.harvestCrop)
  * Sends the crop data based on the latest published data from the MQTT topic/s.
  *
  * @param {String} route path          The endpoint at which requests can be made.
- * @param {Object} auth                Auth middleware to validate token.
  * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
  */
 router.get('/crop/:podName', cropController.getActiveCropData)
+
+/**
+ * Get Active Crop List.
+ *
+ * Sends the list of active crops to display on the homepage.
+ *
+ * @param {String} route path          The endpoint at which requests can be made.
+ * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
+ */
+router.get('/crops/active', cropController.getActiveCropList)
 
 // END OF ACTIVE CROP ROUTES. BELOW ARE GENERAL CROP-RELATED ROUTES
 

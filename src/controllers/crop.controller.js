@@ -202,6 +202,24 @@ exports.getActiveCropData = async (req, res) => {
 }
 
 /**
+ * Get Active Crop List.
+ *
+ * Sends the list of active crops to display on the homepage.
+ *
+ * @param req   HTTP request argument to the middleware function
+ * @param res   HTTP response argument to the middleware function.
+ */
+exports.getActiveCropList = async (req, res) => {
+    try {
+        const activeCrops = JSON.stringify(await Crop.find({'active': true}))
+        const cropInfo = JSON.parse(activeCrops, (key, value) => (key !== 'threshold_values') ? value : key[-1]);
+        res.status(200).send(cropInfo)
+    } catch (e) {
+        res.status(400).send(e)
+    }
+}
+
+/**
  * Get Crop Image.
  *
  * Returns the image for the corresponding crop.
