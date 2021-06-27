@@ -4,6 +4,7 @@ require('./db/mongoose')
 const userRouter = require('./routers/user')
 const cropRouter = require('./routers/crop')
 const mqttClient = require('./middleware/mqtt_client')
+const sensorController = require('./controllers/sensor.controller')
 
 const app = express()
 const port = process.env.PORT
@@ -23,6 +24,7 @@ app.use(cors({
 app.use(userRouter)
 app.use(cropRouter)
 
+sensorController.insertSensors()
 mqttClient.connectToBroker()
 
 app.listen(port, () => {

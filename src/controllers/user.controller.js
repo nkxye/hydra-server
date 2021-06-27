@@ -1,5 +1,5 @@
 const User = require('../models/user')
-const Sensor = require('../models/sensor')
+const sensorController = require('../controllers/sensor.controller')
 
 /**
  * Register Admin.
@@ -25,35 +25,7 @@ exports.registerAdmin = async (req, res) => {
                 pod_name: req.body.setupName
             })
 
-            // TODO: init sensor entries upon creation of pod
-            const humidity = await Sensor.findOne({'name': 'air_humidity'})
-            const airTemp = await Sensor.findOne({'name': 'air_temperature'})
-            const waterTemp = await Sensor.findOne({'name': 'water_temperature'})
-            const ecSensor = await Sensor.findOne({'name': 'ec_reading'})
-            const phSensor = await Sensor.findOne({'name': 'ph_reading'})
-            const nutrientA = await Sensor.findOne({'name': 'contactless_liquid_level'})
-            const uvLight = await Sensor.findOne({'name': 'uv_light'})
-            const infrared = await Sensor.findOne({'name': 'infrared_light'})
-            const visibleLight = await Sensor.findOne({'name': 'visible_light'})
-            const reservoirLevel = await Sensor.findOne({'name': 'reservoir_level'})
-
-            if (humidity) {
-                humidity.pods_linked = humidity.pods_linked.concat({
-                    pod_name: req.body.setupName
-                })
-            } else {
-                await new Sensor({
-                    name: 'air_humidity',
-                    pods_linked: [
-                        {
-                            pod_name: req.body.setupName
-                        }
-                    ]
-                }).save()
-            }
-
-
-
+            await sensorController.initSensors(req.body.setupName)
 
             // TODO: get last will to let front end know that arduino is offline - get pod data
 
