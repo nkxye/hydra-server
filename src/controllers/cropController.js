@@ -23,6 +23,7 @@ exports.startNewCrop = async (req, res) => {
                     podAlreadyOccupied = true
                 } else {
                     req.user.pods_owned[i].occupied = true
+                    await req.user.save()
                 }
 
                 break
@@ -36,10 +37,6 @@ exports.startNewCrop = async (req, res) => {
                 const crop = new Crop({
                     crop_name: req.body.cropName,
                     pod_name: req.body.setupName,
-                    image: {
-                        image_bin: req.file.buffer,
-                        content_type: req.content_type,
-                    },
                     initialize_pumps: initializePumps,
                     threshold_values: {
                         conductivity: {
@@ -61,6 +58,13 @@ exports.startNewCrop = async (req, res) => {
                     }
                 })
 
+                if (typeof req.file !== "undefined") {
+                    crop.image = {
+                        image_bin: req.file.buffer,
+                        content_type: req.content_type
+                    }
+                }
+
                 let data = {
                     "pod_name": req.body.setupName, // pod name should be lower kebabcase
                     "air_humidity": [parseFloat(req.body.humidityStart), parseFloat(req.body.humidityEnd)],
@@ -78,7 +82,6 @@ exports.startNewCrop = async (req, res) => {
                 }
 
                 await crop.save()
-                await req.user.save()
 
                 res.status(201).send(crop)
             }
@@ -138,9 +141,11 @@ exports.changeThreshold = async (req, res) => {
             }
         })
 
-        if (crop.image.image_bin !== req.file.buffer) {
-            crop.image.image_bin = req.file.buffer
-            crop.image.content_type = req.content_type
+        if (typeof req.file !== "undefined") {
+            if (crop.image.image_bin !== req.file.buffer) {
+                crop.image.image_bin = req.file.buffer
+                crop.image.content_type = req.content_type
+            }
         }
 
         await crop.save()
