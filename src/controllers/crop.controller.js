@@ -242,5 +242,3 @@ exports.getCropImage = async (req, res) => {
         res.status(200).send(crop.image.image_bin)
     }
 }
-
-// TODO: return list of all active crops for homepage
