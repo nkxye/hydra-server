@@ -1,5 +1,6 @@
 const Crop = require('../models/crop')
 const mqttClient = require('../middleware/mqtt_client')
+const presetController = require('../controllers/preset.controller')
 
 /**
  * Start New Crop.
@@ -84,6 +85,7 @@ exports.startNewCrop = async (req, res) => {
                 mqttClient.subscribeToPod(crop.pod_name)
 
                 await crop.save()
+                await presetController.createNewPreset(crop.crop_name, crop.threshold_values)
 
                 res.status(201).send(crop)
             }
@@ -200,6 +202,7 @@ exports.harvestCrop = async (req, res) => {
 exports.getActiveCropData = async (req, res) => {
     try {
         // TODO: use socket.io
+        // TODO: get last will to let front end know that arduino is offline - get pod data
         const crop = await Crop.findOne({'pod_name': req.params.podName, 'active': true})
         res.status(200).send(crop)
     } catch (e) {

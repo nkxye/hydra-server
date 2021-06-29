@@ -5,14 +5,24 @@ const Preset = require('../models/preset')
  *
  * Store unique data as a new preset.
  *
- * @param req   HTTP request argument to the middleware function
- * @param res   HTTP response argument to the middleware function.
+ * @param cropName          crop name derived from "Start New Crop"
+ * @param thresholdValues   threshold values derived from "Start New Crop"
  */
-exports.setupNewPod = async (req, res) => {
+exports.createNewPreset = async (cropName, thresholdValues) => {
     try {
         // TODO: save new preset
-        res.status(201).send()
+        const presetExists = await Preset.exists({'preset_name': cropName})
+
+        if (!presetExists) {
+            const preset = new Preset({
+                preset_name: cropName,
+                threshold_values: thresholdValues
+            })
+
+            await preset.save()
+        }
     } catch (e) {
+        throw new Error(e)
     }
 }
 
