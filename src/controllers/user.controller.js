@@ -26,9 +26,6 @@ exports.registerAdmin = async (req, res) => {
             })
 
             await sensorController.initSensors(req.body.setupName)
-
-            // TODO: get last will to let front end know that arduino is offline - get pod data
-
             await user.save()
             const token = await user.generateAuthToken()
             res.status(201).send({user, token})
