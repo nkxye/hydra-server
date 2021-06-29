@@ -81,6 +81,8 @@ exports.startNewCrop = async (req, res) => {
                     mqttClient.publishNewCropSettings(crop.pod_name, data)
                 }
 
+                mqttClient.subscribeToPod(crop.pod_name)
+
                 await crop.save()
 
                 res.status(201).send(crop)
@@ -114,7 +116,7 @@ exports.changeThreshold = async (req, res) => {
             return res.status(400).send({error: 'Invalid update!'})
         }
 
-        // searches only for an active crop to avoid detecting past crops with the same crop name
+        // searches only for an active crop to avoid detecting past crops with the same pod name
         const crop = await Crop.findOne({'pod_name': req.params.podName, 'active': true})
 
         fields.forEach((field) => {
@@ -165,7 +167,7 @@ exports.changeThreshold = async (req, res) => {
  */
 exports.harvestCrop = async (req, res) => {
     try {
-        // searches only for an active crop to avoid detecting past crops with the same crop name
+        // searches only for an active crop to avoid detecting past crops with the same pod name
         const crop = await Crop.findOne({'pod_name': req.params.podName, 'active': true})
         crop.active = false
 
@@ -197,8 +199,7 @@ exports.harvestCrop = async (req, res) => {
  */
 exports.getActiveCropData = async (req, res) => {
     try {
-        // TODO: call sensor data's retrieveData
-        // searches only for an active crop to avoid detecting past crops with the same crop name
+        // TODO: use socket.io
         const crop = await Crop.findOne({'pod_name': req.params.podName, 'active': true})
         res.status(200).send(crop)
     } catch (e) {

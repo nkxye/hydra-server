@@ -1,26 +1,30 @@
 const mongoose = require('mongoose')
 
 const sensorDataSchema = new mongoose.Schema({
-    sensor_id: {
+    sensor: {
         type: String,
         required: true,
         trim: true
     },
-    crop_id: {
-        type: String,
-        required: true,
-        trim: true
+    crop: {
+        type: mongoose.ObjectId,
+        ref: 'Crop',
+        required: true
     },
     start: {
         type: Date,
-        required: true
+        required: true,
+        default: Date.now()
     },
     end: {
-        type: Date
+        type: Date,
+        required: true,
+        default: Date.now()
     },
     measurements: [{
         timestamp: {
             type: Date,
+            default: Date.now(),
             required: true
         },
         value: {

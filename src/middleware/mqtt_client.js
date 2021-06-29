@@ -1,5 +1,5 @@
 const mqtt = require('mqtt')
-const sensorData = require('../controllers/sensor.controller')
+const sensor = require('../controllers/sensor.controller')
 
 /**
  * MqttClient Class.
@@ -36,8 +36,7 @@ class MqttClient {
         })
 
         this.client.on('message', function (topic, message) {
-            // TODO: store message to Sensor Data collection
-            sensorData.retrieve(message)
+            sensor.retrieve(topic, message)
         })
     }
 
@@ -102,6 +101,9 @@ class MqttClient {
                 qos: 0,
                 retain: false
             })
+
+            this.client.unsubscribe(podName + '/sensor_data/')
+            this.client.unsubscribe(podName + '/probe_data/')
         } catch (e) {
             console.error(e)
         }
