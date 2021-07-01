@@ -12,6 +12,7 @@ exports.createJournalEntry = async (req, res) => {
     try {
         const entry = new Journal({
             title: req.body.title,
+            crop_id: req.body.cropId,
             start_date: req.body.start,
             end_date: req.body.end,
             pod_name: req.body.setupName
@@ -30,15 +31,17 @@ exports.createJournalEntry = async (req, res) => {
  * Creates an automated journal entry when the value gets detected as critical (below/above threshold).
  *
  * @param title     Title for the journal entry.
+ * @param crop      ObjectId for the target crop.
  * @param start     Start date for the journal entry.
  * @param end       End date for the journal entry.
  * @param pod       Target pod/setup for the journal entry.
  */
-exports.createAutomatedJournalEntry = async (title, start, end, pod) => {
+exports.createAutomatedJournalEntry = async (title, start, end, crop, pod) => {
     // TODO: integrate in sensor data for critical
     try {
         const entry = new Journal({
             title: title,
+            crop_id: crop,
             start_date: start,
             end_date: end,
             pod_name: pod,
@@ -54,7 +57,7 @@ exports.createAutomatedJournalEntry = async (title, start, end, pod) => {
 /**
  * Edit Journal Entry.
  *
- * Sends a list of all the unoccupied pods to display on the "Setup Name" field of "Start New Crop".
+ * Updates the journal entry with the provided input.
  *
  * @param req   HTTP request argument to the middleware function
  * @param res   HTTP response argument to the middleware function.
@@ -106,14 +109,14 @@ exports.deleteJournalEntry = async (req, res) => {
 /**
  * Get Journal Entries.
  *
- * Sends a list of all the unoccupied pods to display on the "Setup Name" field of "Start New Crop".
+ * Sends a list of all the journal entries to display on the calendar.
  *
  * @param req   HTTP request argument to the middleware function
  * @param res   HTTP response argument to the middleware function.
  */
 exports.getJournalEntries = async (req, res) => {
     try {
-        const entries = await Journal.find({pod_name: req.params.podName})
+        const entries = await Journal.find({pod_name: req.params.podName, crop_id: req.params.cropId})
         res.status(200).send(entries)
     } catch (e) {
         res.status(400).send(e)

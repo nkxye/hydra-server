@@ -6,6 +6,11 @@ const journalSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    crop_id: {
+        type: mongoose.ObjectId,
+        ref: 'Crop',
+        required: true
+    },
     pod_name: {
         type: String,
         required: true,

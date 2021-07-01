@@ -16,7 +16,7 @@ router.post('/journal/new', journalController.createJournalEntry)
 /**
  * Edit Journal Entry.
  *
- * Sends a list of all the unoccupied pods to display on the "Setup Name" field of "Start New Crop".
+ * Updates the journal entry with the provided input.
  *
  * @param {String} route path          The endpoint at which requests can be made.
  * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
@@ -34,14 +34,14 @@ router.patch('/journal/edit', journalController.editJournalEntry())
 router.delete('/journal/:id/delete', journalController.deleteJournalEntry())
 
 /**
- * Get List of Vacant Pods.
+ * Get List of Journal Entries
  *
- * Sends a list of all the unoccupied pods to display on the "Setup Name" field of "Start New Crop".
+ * Sends a list of all the journal entries to display on the calendar.
  *
  * @param {String} route path          The endpoint at which requests can be made.
  * @param {Object} auth                Auth middleware to validate token.
  * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
  */
-router.get('/journal/:podName', journalController.getJournalEntries())
+router.get('/journal/:podName/:cropId', journalController.getJournalEntries())
 
 module.exports = router
