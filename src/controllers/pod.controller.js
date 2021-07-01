@@ -1,9 +1,9 @@
 const sensorController = require('../controllers/sensor.controller')
 
 /**
- * Retrieve Data.
+ * Add New Setup
  *
- * Stores the newly parsed data from the MQTT broker to the database.
+ * Stores the newly added setup/pod to the database.
  *
  * @param req   HTTP request argument to the middleware function
  * @param res   HTTP response argument to the middleware function.

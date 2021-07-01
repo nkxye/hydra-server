@@ -5,9 +5,9 @@ const podController = require('../controllers/pod.controller')
 const router = new express.Router()
 
 /**
- * Get List of Vacant Pods.
+ * Add New Setup
  *
- * Sends a list of all the unoccupied pods to display on the "Setup Name" field of "Start New Crop".
+ * Stores the newly added setup/pod to the database.
  *
  * @param {String} route path          The endpoint at which requests can be made.
  * @param {Object} auth                Auth middleware to validate token.

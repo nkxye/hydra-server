@@ -35,6 +35,7 @@ exports.createJournalEntry = async (req, res) => {
  * @param pod       Target pod/setup for the journal entry.
  */
 exports.createAutomatedJournalEntry = async (title, start, end, pod) => {
+    // TODO: integrate in sensor data for critical
     try {
         const entry = new Journal({
             title: title,
