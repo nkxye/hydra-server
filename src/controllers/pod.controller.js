@@ -19,6 +19,7 @@ exports.setupNewPod = async (req, res) => {
 
         res.status(201).send()
     } catch (e) {
+        res.status(400).send(e)
     }
 }
 
