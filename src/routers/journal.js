@@ -42,6 +42,6 @@ router.delete('/journal/:id/delete', journalController.deleteJournalEntry())
  * @param {Object} auth                Auth middleware to validate token.
  * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
  */
-router.get('/journal/:podName/:cropId', journalController.getJournalEntries())
+router.get('/journal/:cropId', journalController.getJournalEntries())
 
 module.exports = router

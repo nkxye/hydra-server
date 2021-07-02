@@ -11,11 +11,6 @@ const journalSchema = new mongoose.Schema({
         ref: 'Crop',
         required: true
     },
-    pod_name: {
-        type: String,
-        required: true,
-        trim: true
-    },
     start_date: {
         type: Date,
         required: true,

@@ -14,12 +14,11 @@ exports.createJournalEntry = async (req, res) => {
             title: req.body.title,
             crop_id: req.body.cropId,
             start_date: req.body.start,
-            end_date: req.body.end,
-            pod_name: req.body.setupName
+            end_date: req.body.end
         })
 
         await entry.save()
-        res.status(201).send()
+        res.status(201).send(entry)
     } catch (e) {
         res.status(400).send(e)
     }
@@ -44,7 +43,6 @@ exports.createAutomatedJournalEntry = async (title, start, end, crop, pod) => {
             crop_id: crop,
             start_date: start,
             end_date: end,
-            pod_name: pod,
             automated: true
         })
 
@@ -72,7 +70,7 @@ exports.editJournalEntry = async (req, res) => {
             return res.status(400).send({error: 'Invalid update!'})
         }
 
-        const entry = await Journal.findById(req.body.id)
+        const entry = await Journal.findById(req.body.cropId)
 
         fields.forEach((field) => entry[field] = req.body[field])
         await entry.save()
@@ -116,7 +114,7 @@ exports.deleteJournalEntry = async (req, res) => {
  */
 exports.getJournalEntries = async (req, res) => {
     try {
-        const entries = await Journal.find({pod_name: req.params.podName, crop_id: req.params.cropId})
+        const entries = await Journal.find({crop_id: req.params.cropId})
         res.status(200).send(entries)
     } catch (e) {
         res.status(400).send(e)
