@@ -14,8 +14,8 @@ exports.setupNewPod = async (req, res) => {
             pod_name: req.body.setupName
         })
 
-        await sensorController.initSensors(req.body.setupName)
         await req.user.save()
+        await sensorController.initSensors(req.body.setupName)
 
         res.status(201).send()
     } catch (e) {
