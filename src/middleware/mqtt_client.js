@@ -1,4 +1,8 @@
 const mqtt = require('mqtt')
+const fs = require('fs');
+const caFile = fs.readFileSync("./certs/ca.crt");
+const key = fs.readFileSync('./certs/client.key');
+const cert = fs.readFileSync('./certs/client.crt');
 const sensor = require('../controllers/sensor.controller')
 
 /**
@@ -8,6 +12,7 @@ const sensor = require('../controllers/sensor.controller')
  * This is currently connected to a HiveMQ broker for (testing) and will be revised to cater to the local MQTT broker.
  */
 class MqttClient {
+    // HiveMQ constructor
     constructor() {
         this.client = null
         this.host = process.env.HIVEMQ_URL
@@ -17,7 +22,19 @@ class MqttClient {
         this.password = process.env.MQTT_PASSWORD
     }
 
+    // local MQTTS constructor
+    // constructor() {
+    //     this.client = null
+    //     this.host = process.env.LOCAL_URL
+    //     this.port = process.env.MQTT_PORT
+    //     this.protocol = 'mqtts'
+    //     this.key = key
+    //     this.cert = cert
+    //     this.caFile = caFile
+    // }
+
     connectToBroker() {
+        // HiveMQ connect
         this.client = mqtt.connect({
             host: this.host,
             port: this.port,
@@ -26,9 +43,20 @@ class MqttClient {
             password: this.password
         })
 
+        // local MQTTS connect
+        // this.client = mqtt.connect({
+        //     host: this.host,
+        //     port: this.port,
+        //     protocol: this.protocol,
+        //     key: this.key,
+        //     cert: this.cert,
+        //     ca: this.caFile,
+        //     protocolVersion: 4
+        // })
+
         this.client.on('error', function (e) {
-            console.log(e);
-            this.client.end();
+            console.log(e)
+            process.exit()
         })
 
         this.client.on('connect', function () {
