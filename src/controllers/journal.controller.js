@@ -62,7 +62,8 @@ exports.createAutomatedJournalEntry = async (title, start, end, crop, pod) => {
  */
 exports.editJournalEntry = async (req, res) => {
     try {
-        const fields = Object.keys(req.body)
+        let fields = Object.keys(req.body)
+        fields = fields.filter(field => field !== 'entryId')
         const revisableFields = ['title', 'start', 'end']
         const validUpdate = fields.every((field) => revisableFields.includes(field))
 
@@ -70,7 +71,7 @@ exports.editJournalEntry = async (req, res) => {
             return res.status(400).send({error: 'Invalid update!'})
         }
 
-        const entry = await Journal.findById(req.body.cropId)
+        const entry = await Journal.findById(req.body.entryId)
 
         fields.forEach((field) => entry[field] = req.body[field])
         await entry.save()

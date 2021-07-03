@@ -7,7 +7,7 @@ const journalSchema = new mongoose.Schema({
         trim: true
     },
     crop_id: {
-        type: mongoose.ObjectId,
+        type: String,
         ref: 'Crop',
         required: true
     },

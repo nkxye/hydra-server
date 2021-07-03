@@ -148,7 +148,7 @@ exports.insertSensors = () => {
                 {'name': 'ph_down'},
                 {'name': 'water_level'}
             ]
-            
+
             sensorNames.forEach((sensor) => {
                 Sensor.findOneAndUpdate( sensor, sensor, { upsert: true }, (err,doc) => { })
             })
