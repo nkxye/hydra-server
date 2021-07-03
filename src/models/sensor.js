@@ -11,7 +11,6 @@ const sensorSchema = new mongoose.Schema({
     pods_linked: [{
         pod_name: {
             type: String,
-            required: true,
             trim: true,
             minLength: 5,
             maxLength: 15

@@ -7,7 +7,6 @@ const podRouter = require('./routers/pod')
 const presetRouter = require('./routers/preset')
 const journalRouter = require('./routers/journal')
 const mqttClient = require('./middleware/mqtt_client')
-const sensorController = require('./controllers/sensor.controller')
 
 const app = express()
 const port = process.env.PORT
@@ -30,7 +29,6 @@ app.use(podRouter)
 app.use(presetRouter)
 app.use(journalRouter)
 
-sensorController.insertSensors()
 mqttClient.connectToBroker()
 
 app.listen(port, () => {

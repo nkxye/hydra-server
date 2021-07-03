@@ -132,9 +132,9 @@ exports.retrieve = async (topic, message) => {
  */
 exports.insertSensors = () => {
     let executed = false
-    return async () => {
+
+    const insert = (executed) => {
         if (!executed) {
-            executed = true
             const sensorNames = [
                 {'name': 'conductivity'},
                 {'name': 'humidity'},
@@ -148,11 +148,13 @@ exports.insertSensors = () => {
                 {'name': 'ph_down'},
                 {'name': 'water_level'}
             ]
-
-            const sensors = await Sensor.insertMany(sensorNames)
-            await sensors.save()
+            
+            sensorNames.forEach((sensor) => {
+                Sensor.findOneAndUpdate( sensor, sensor, { upsert: true }, (err,doc) => { })
+            })
         }
     }
+    insert(executed)
 }
 
 /**
