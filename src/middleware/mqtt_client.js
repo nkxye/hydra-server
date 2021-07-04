@@ -1,4 +1,9 @@
 const mqtt = require('mqtt')
+// const fs = require('fs')
+// const caFile = fs.readFileSync("./certs/ca.crt")
+// const key = fs.readFileSync('./certs/client.key')
+// const cert = fs.readFileSync('./certs/client.crt')
+const sensorController = require('../controllers/sensor.controller')
 
 /**
  * MqttClient Class.
@@ -7,6 +12,7 @@ const mqtt = require('mqtt')
  * This is currently connected to a HiveMQ broker for (testing) and will be revised to cater to the local MQTT broker.
  */
 class MqttClient {
+    // HiveMQ constructor
     constructor() {
         this.client = null
         this.host = process.env.HIVEMQ_URL
@@ -16,32 +22,60 @@ class MqttClient {
         this.password = process.env.MQTT_PASSWORD
     }
 
+    // local MQTTS constructor
+    // constructor() {
+    //     this.client = null
+    //     this.host = process.env.LOCAL_URL
+    //     this.port = process.env.MQTT_PORT
+    //     this.protocol = 'mqtts'
+    //     this.key = key
+    //     this.cert = cert
+    //     this.caFile = caFile
+    // }
+
     connectToBroker() {
+        // HiveMQ connect
         this.client = mqtt.connect({
             host: this.host,
             port: this.port,
             protocol: this.protocol,
             username: this.username,
-            password: this.password
+            password: this.password,
+            clean: true
         })
+
+        // local MQTTS connect
+        // this.client = mqtt.connect({
+        //     host: this.host,
+        //     port: this.port,
+        //     protocol: this.protocol,
+        // resubscribe: true
+        //     key: this.key,
+        //     cert: this.cert,
+        //     ca: this.caFile,
+        //     protocolVersion: 4
+        // })
 
         this.client.on('error', function (e) {
-            console.log(e);
-            this.client.end();
+            console.error(e)
+            process.exit()
         })
 
-        this.client.on('connect', function () {
+        this.client.on('connect', async function () {
             console.log('Successfully connected to the MQTT broker.')
         })
 
-        this.client.on('message', function (topic, message) {
-            // TODO: store message to Sensor Data collection
+        this.client.on('message', async function (topic, message) {
+            // identify pod name and data type (sensor_data, probe_data) thru slice and split
+            const [podName, dataType] = topic.slice(0, -1).split("/")
+            await sensorController.retrieve(podName, dataType, message).then(r => console.log('Data from "' + topic + '" received.'))
         })
     }
 
     // subscribe to topic :podName/sensor_data/
     subscribeToPod(podName) {
         this.client.subscribe(podName + '/sensor_data/')
+        this.client.subscribe(podName + '/probe_data/')
     }
 
     // publish JSON to topic :podName/commands/new_crop/
@@ -50,7 +84,7 @@ class MqttClient {
 
         try {
             this.client.publish(topic, JSON.stringify(data), {
-                qos: 0,
+                qos: 1,
                 retain: true
             })
         } catch (e) {
@@ -67,7 +101,7 @@ class MqttClient {
 
             try {
                 this.client.publish(topic, JSON.stringify(data), {
-                    qos: 0,
+                    qos: 1,
                     retain: true
                 })
             } catch (e) {
@@ -86,19 +120,22 @@ class MqttClient {
 
         try {
             this.client.publish(newCropTopic, '', {
-                qos: 0,
+                qos: 1,
                 retain: false
             })
             sensors.forEach((sensor) => {
                 this.client.publish(changeValueTopic + sensor + '/', '', {
-                    qos: 0,
+                    qos: 1,
                     retain: false
                 })
             })
             this.client.publish(harvestTopic, data, {
-                qos: 0,
+                qos: 1,
                 retain: false
             })
+
+            this.client.unsubscribe(podName + '/sensor_data/')
+            this.client.unsubscribe(podName + '/probe_data/')
         } catch (e) {
             console.error(e)
         }

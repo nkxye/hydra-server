@@ -3,6 +3,9 @@ const cors = require('cors')
 require('./db/mongoose')
 const userRouter = require('./routers/user')
 const cropRouter = require('./routers/crop')
+const podRouter = require('./routers/pod')
+const presetRouter = require('./routers/preset')
+const journalRouter = require('./routers/journal')
 const mqttClient = require('./middleware/mqtt_client')
 
 const app = express()
@@ -22,6 +25,9 @@ app.use(cors({
 
 app.use(userRouter)
 app.use(cropRouter)
+app.use(podRouter)
+app.use(presetRouter)
+app.use(journalRouter)
 
 mqttClient.connectToBroker()
 

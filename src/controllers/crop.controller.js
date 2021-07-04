@@ -1,5 +1,6 @@
 const Crop = require('../models/crop')
 const mqttClient = require('../middleware/mqtt_client')
+const presetController = require('../controllers/preset.controller')
 
 /**
  * Start New Crop.
@@ -51,7 +52,7 @@ exports.startNewCrop = async (req, res) => {
                             min: req.body.phStart,
                             max: req.body.phEnd
                         },
-                        temperature: {
+                        air_temperature: {
                             min: req.body.tempStart,
                             max: req.body.tempEnd
                         }
@@ -81,7 +82,10 @@ exports.startNewCrop = async (req, res) => {
                     mqttClient.publishNewCropSettings(crop.pod_name, data)
                 }
 
+                mqttClient.subscribeToPod(crop.pod_name)
+
                 await crop.save()
+                await presetController.createNewPreset(crop.crop_name, crop.threshold_values)
 
                 res.status(201).send(crop)
             }
@@ -114,7 +118,7 @@ exports.changeThreshold = async (req, res) => {
             return res.status(400).send({error: 'Invalid update!'})
         }
 
-        // searches only for an active crop to avoid detecting past crops with the same crop name
+        // searches only for an active crop to avoid detecting past crops with the same pod name
         const crop = await Crop.findOne({'pod_name': req.params.podName, 'active': true})
 
         fields.forEach((field) => {
@@ -134,10 +138,10 @@ exports.changeThreshold = async (req, res) => {
                 crop.threshold_values.ph_level.min = newValue
             } else if (field === 'phEnd' && crop.threshold_values.ph_level.max !== newValue) {
                 crop.threshold_values.ph_level.max = newValue
-            } else if (field === 'tempStart' && crop.threshold_values.temperature.min !== newValue) {
-                crop.threshold_values.temperature.min = newValue
-            } else if (field === 'tempEnd' && crop.threshold_values.temperature.max !== newValue) {
-                crop.threshold_values.temperature.max = newValue
+            } else if (field === 'tempStart' && crop.threshold_values.air_temperature.min !== newValue) {
+                crop.threshold_values.air_temperature.min = newValue
+            } else if (field === 'tempEnd' && crop.threshold_values.air_temperature.max !== newValue) {
+                crop.threshold_values.air_temperature.max = newValue
             }
         })
 
@@ -165,7 +169,7 @@ exports.changeThreshold = async (req, res) => {
  */
 exports.harvestCrop = async (req, res) => {
     try {
-        // searches only for an active crop to avoid detecting past crops with the same crop name
+        // searches only for an active crop to avoid detecting past crops with the same pod name
         const crop = await Crop.findOne({'pod_name': req.params.podName, 'active': true})
         crop.active = false
 
@@ -197,11 +201,10 @@ exports.harvestCrop = async (req, res) => {
  */
 exports.getActiveCropData = async (req, res) => {
     try {
-        // searches only for an active crop to avoid detecting past crops with the same crop name
+        // TODO: use socket.io
+        // TODO: get last will to let front end know that arduino is offline - get pod data
         const crop = await Crop.findOne({'pod_name': req.params.podName, 'active': true})
         res.status(200).send(crop)
-
-        // TODO: crop data logic via sensor data
     } catch (e) {
         res.status(400).send(e)
     }

@@ -1,4 +1,5 @@
 const User = require('../models/user')
+const sensorController = require('../controllers/sensor.controller')
 
 /**
  * Register Admin.
@@ -24,6 +25,7 @@ exports.registerAdmin = async (req, res) => {
                 pod_name: req.body.setupName
             })
 
+            await sensorController.initSensors(req.body.setupName)
             await user.save()
             const token = await user.generateAuthToken()
             res.status(201).send({user, token})

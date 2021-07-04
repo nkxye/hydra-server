@@ -68,7 +68,7 @@ const cropSchema = new mongoose.Schema({
                 required: true
             }
         },
-        temperature: {
+        air_temperature: {
             min: {
                 type: mongoose.Decimal128,
                 required: true
@@ -76,6 +76,206 @@ const cropSchema = new mongoose.Schema({
             max: {
                 type: mongoose.Decimal128,
                 required: true
+            }
+        }
+    },
+    latest_data: {
+        conductivity: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: mongoose.Decimal128,
+                default: 0.0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
+            }
+        },
+        humidity: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: mongoose.Decimal128,
+                default: 0.0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
+            }
+        },
+        ph_level: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: mongoose.Decimal128,
+                default: 0.0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
+            }
+        },
+        air_temperature: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: mongoose.Decimal128,
+                default: 0.0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
+            }
+        },
+        water_temperature: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: mongoose.Decimal128,
+                default: 0.0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
+            }
+        },
+        nutrient_A: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: Number,
+                default: 0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
+            }
+        },
+        nutrient_B: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: Number,
+                default: 0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
+            }
+        },
+        nutrient_C: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: Number,
+                default: 0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
+            }
+        },
+        ph_up: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: Number,
+                default: 0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
+            }
+        },
+        ph_down: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: Number,
+                default: 0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
+            }
+        },
+        water_level: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: Number,
+                default: 0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
             }
         }
     }
