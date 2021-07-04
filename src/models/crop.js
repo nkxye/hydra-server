@@ -68,7 +68,7 @@ const cropSchema = new mongoose.Schema({
                 required: true
             }
         },
-        temperature: {
+        air_temperature: {
             min: {
                 type: mongoose.Decimal128,
                 required: true
@@ -86,7 +86,8 @@ const cropSchema = new mongoose.Schema({
                 default: Date.now()
             },
             value: {
-                type: mongoose.Decimal128
+                type: mongoose.Decimal128,
+                default: 0.0
             },
             increase: {
                 type: Number, // -1 = decrease, 0 = equal, 1 = increase
@@ -103,7 +104,8 @@ const cropSchema = new mongoose.Schema({
                 default: Date.now()
             },
             value: {
-                type: mongoose.Decimal128
+                type: mongoose.Decimal128,
+                default: 0.0
             },
             increase: {
                 type: Number, // -1 = decrease, 0 = equal, 1 = increase
@@ -120,7 +122,8 @@ const cropSchema = new mongoose.Schema({
                 default: Date.now()
             },
             value: {
-                type: mongoose.Decimal128
+                type: mongoose.Decimal128,
+                default: 0.0
             },
             increase: {
                 type: Number, // -1 = decrease, 0 = equal, 1 = increase
@@ -137,7 +140,8 @@ const cropSchema = new mongoose.Schema({
                 default: Date.now()
             },
             value: {
-                type: mongoose.Decimal128
+                type: mongoose.Decimal128,
+                default: 0.0
             },
             increase: {
                 type: Number, // -1 = decrease, 0 = equal, 1 = increase
@@ -154,7 +158,8 @@ const cropSchema = new mongoose.Schema({
                 default: Date.now()
             },
             value: {
-                type: mongoose.Decimal128
+                type: mongoose.Decimal128,
+                default: 0.0
             },
             increase: {
                 type: Number, // -1 = decrease, 0 = equal, 1 = increase
@@ -171,7 +176,8 @@ const cropSchema = new mongoose.Schema({
                 default: Date.now()
             },
             value: {
-                type: Number
+                type: Number,
+                default: 0
             },
             increase: {
                 type: Number, // -1 = decrease, 0 = equal, 1 = increase
@@ -188,7 +194,8 @@ const cropSchema = new mongoose.Schema({
                 default: Date.now()
             },
             value: {
-                type: Number
+                type: Number,
+                default: 0
             },
             increase: {
                 type: Number, // -1 = decrease, 0 = equal, 1 = increase
@@ -205,7 +212,8 @@ const cropSchema = new mongoose.Schema({
                 default: Date.now()
             },
             value: {
-                type: Number
+                type: Number,
+                default: 0
             },
             increase: {
                 type: Number, // -1 = decrease, 0 = equal, 1 = increase
@@ -222,7 +230,8 @@ const cropSchema = new mongoose.Schema({
                 default: Date.now()
             },
             value: {
-                type: Number
+                type: Number,
+                default: 0
             },
             increase: {
                 type: Number, // -1 = decrease, 0 = equal, 1 = increase
@@ -239,7 +248,8 @@ const cropSchema = new mongoose.Schema({
                 default: Date.now()
             },
             value: {
-                type: Number
+                type: Number,
+                default: 0
             },
             increase: {
                 type: Number, // -1 = decrease, 0 = equal, 1 = increase
@@ -256,7 +266,8 @@ const cropSchema = new mongoose.Schema({
                 default: Date.now()
             },
             value: {
-                type: Number
+                type: Number,
+                default: 0
             },
             increase: {
                 type: Number, // -1 = decrease, 0 = equal, 1 = increase

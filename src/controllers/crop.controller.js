@@ -52,7 +52,7 @@ exports.startNewCrop = async (req, res) => {
                             min: req.body.phStart,
                             max: req.body.phEnd
                         },
-                        temperature: {
+                        air_temperature: {
                             min: req.body.tempStart,
                             max: req.body.tempEnd
                         }
@@ -138,10 +138,10 @@ exports.changeThreshold = async (req, res) => {
                 crop.threshold_values.ph_level.min = newValue
             } else if (field === 'phEnd' && crop.threshold_values.ph_level.max !== newValue) {
                 crop.threshold_values.ph_level.max = newValue
-            } else if (field === 'tempStart' && crop.threshold_values.temperature.min !== newValue) {
-                crop.threshold_values.temperature.min = newValue
-            } else if (field === 'tempEnd' && crop.threshold_values.temperature.max !== newValue) {
-                crop.threshold_values.temperature.max = newValue
+            } else if (field === 'tempStart' && crop.threshold_values.air_temperature.min !== newValue) {
+                crop.threshold_values.air_temperature.min = newValue
+            } else if (field === 'tempEnd' && crop.threshold_values.air_temperature.max !== newValue) {
+                crop.threshold_values.air_temperature.max = newValue
             }
         })
 

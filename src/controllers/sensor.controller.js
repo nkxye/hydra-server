@@ -1,6 +1,6 @@
 const SensorData = require('../models/sensor_data')
-const Sensor = require("../models/sensor");
-const Crop = require("../models/crop");
+const Sensor = require("../models/sensor")
+const Crop = require("../models/crop")
 
 /**
  * Retrieve Data.
@@ -10,12 +10,8 @@ const Crop = require("../models/crop");
  * @param req   HTTP request argument to the middleware function
  * @param res   HTTP response argument to the middleware function.
  */
-exports.retrieve = async (topic, message) => {
+exports.retrieve = async (podName, dataType, message) => {
     try {
-        // identify pod name and data type (sensor_data, probe_data) thru slice and split
-        const topic = topic.slice(0, -1)
-        const [podName, dataType] = topic.split("/")
-
         // parse string into JSON
         const messageJSON = JSON.parse(message)
 
@@ -25,22 +21,22 @@ exports.retrieve = async (topic, message) => {
 
         // map sensor names in DB with sensor names in MQTT
         const sensorNames = {
-            'humidity': 'air_humidity',
-            'air_temperature': 'air_temperature',
-            'nutrient_A': 'contactless_liquid_level',
-            'nutrient_B': 'contactless_liquid_level',
-            'nutrient_C': 'contactless_liquid_level',
-            'ph_up': 'contactless_liquid_level',
-            'ph_down': 'contactless_liquid_level',
-            'water_level': 'reservoir_level'
-        }
+                'humidity': 'air_humidity',
+                'air_temperature': 'air_temperature',
+                'nutrient_A': 'contactless_liquid_level',
+                'nutrient_B': 'contactless_liquid_level',
+                'nutrient_C': 'contactless_liquid_level',
+                'ph_up': 'contactless_liquid_level',
+                'ph_down': 'contactless_liquid_level',
+                'water_level': 'reservoir_level'
+            }
 
         // map sensor names in DB with probe names in MQTT
         const probeNames = {
-            'conductivity': 'ec_reading',
-            'ph_level': 'ph_reading',
-            'water_temperature': 'water_temperature'
-        }
+                'conductivity': 'ec_reading',
+                'ph_level': 'ph_reading',
+                'water_temperature': 'water_temperature'
+            }
 
         // sensors with threshold values specified
         const hasThreshold = ['humidity', 'conductivity', 'ph_level', 'air_temperature']
@@ -48,16 +44,19 @@ exports.retrieve = async (topic, message) => {
         if (dataType === 'sensor_data') {
             // convert boolean to 15% and 100%
             if (messageJSON.contactless_liquid_level) {
+                console.log(messageJSON.contactless_liquid_level)
                 messageJSON.contactless_liquid_level = 100
             } else {
                 messageJSON.contactless_liquid_level = 15
             }
 
-            for (const key of sensorNames) {
+            const sensorKeys = Object.keys(sensorNames)
+
+            for (const key of sensorKeys) {
                 let increaseVal = 0 // -1 = decrease, 0 = equal, 1 = increase
                 let normalVal = true
-                let lastValue = crop.latest_data[key].value
                 let currentValue = messageJSON[sensorNames[key]]
+                let lastValue = crop.latest_data[key].value
 
                 // check if the value has increased/decreased
                 if (lastValue > currentValue) {
@@ -71,6 +70,10 @@ exports.retrieve = async (topic, message) => {
                     if (currentValue < crop.threshold_values[key].min || currentValue > crop.threshold_values[key].max) {
                         normalVal = false
                     }
+                } else if (sensorNames[key] === 'contactless_liquid_level' && currentValue === 15) {
+                    normalVal = false
+                } else if (sensorNames[key] === 'reservoir_level' && currentValue !== 100) {
+                    normalVal = false
                 }
 
                 // update latest_data property of crop
@@ -84,11 +87,12 @@ exports.retrieve = async (topic, message) => {
                 await updateBucket(key, cropId, currentValue)
             }
         } else if (dataType === 'probe_data') {
-            for (const key of probeNames) {
+            const probeKeys = Object.keys(probeNames)
+            for (const key of probeKeys) {
                 let increaseVal = 0 // -1 = decrease, 0 = equal, 1 = increase
                 let normalVal = true
-                let lastValue = crop.latest_data[key].value
                 let currentValue = messageJSON[probeNames[key]]
+                let lastValue = crop.latest_data[key].value
 
                 // check if the value has increased/decreased
                 if (lastValue > currentValue) {
@@ -188,7 +192,7 @@ exports.initSensors = async (podName) => {
  * @param cropId     ObjectId of the crop being monitored.
  * @param newValue   New sensor value to set in the database.
  */
-exports.updateBucket = async (sensor, cropId, newValue) => {
+updateBucket = async (sensor, cropId, newValue) => {
     // find bucket where measurement_count < 30
     const data = await SensorData.findOne({sensor: sensor, crop: cropId, measurement_count: {$lt: 30}})
 
@@ -197,10 +201,10 @@ exports.updateBucket = async (sensor, cropId, newValue) => {
         data.end = Date.now()
         data.measurements = data.measurements.concat({
             timestamp: Date.now(),
-            value: newValue
+            value: parseFloat(newValue)
         })
-        data.measurement_count = data.measurement_count + 1
-        data.sum_values = data.sum_values + newValue
+        data.measurement_count = parseInt(data.measurement_count) + 1
+        data.sum_values = parseFloat(data.sum_values) + parseFloat(newValue)
 
         await data.save()
     } else {
@@ -211,12 +215,12 @@ exports.updateBucket = async (sensor, cropId, newValue) => {
             start: Date.now(),
             end: Date.now(),
             measurement_count: 1,
-            sum_values: newValue
+            sum_values: parseFloat(newValue)
         })
 
         newData.measurements = newData.measurements.concat({
             timestamp: Date.now(),
-            value: newValue
+            value: parseFloat(newValue)
         })
 
         await newData.save()
