@@ -1,9 +1,9 @@
 const mqtt = require('mqtt')
-const fs = require('fs');
-const caFile = fs.readFileSync("./certs/ca.crt");
-const key = fs.readFileSync('./certs/client.key');
-const cert = fs.readFileSync('./certs/client.crt');
-const sensor = require('../controllers/sensor.controller')
+// const fs = require('fs')
+// const caFile = fs.readFileSync("./certs/ca.crt")
+// const key = fs.readFileSync('./certs/client.key')
+// const cert = fs.readFileSync('./certs/client.crt')
+const sensorController = require('../controllers/sensor.controller')
 
 /**
  * MqttClient Class.
@@ -40,7 +40,8 @@ class MqttClient {
             port: this.port,
             protocol: this.protocol,
             username: this.username,
-            password: this.password
+            password: this.password,
+            clean: true
         })
 
         // local MQTTS connect
@@ -48,6 +49,7 @@ class MqttClient {
         //     host: this.host,
         //     port: this.port,
         //     protocol: this.protocol,
+        // resubscribe: true
         //     key: this.key,
         //     cert: this.cert,
         //     ca: this.caFile,
@@ -55,16 +57,18 @@ class MqttClient {
         // })
 
         this.client.on('error', function (e) {
-            console.log(e)
+            console.error(e)
             process.exit()
         })
 
-        this.client.on('connect', function () {
+        this.client.on('connect', async function () {
             console.log('Successfully connected to the MQTT broker.')
         })
 
-        this.client.on('message', function (topic, message) {
-            sensor.retrieve(topic, message)
+        this.client.on('message', async function (topic, message) {
+            // identify pod name and data type (sensor_data, probe_data) thru slice and split
+            const [podName, dataType] = topic.slice(0, -1).split("/")
+            await sensorController.retrieve(podName, dataType, message).then(r => console.log('Data from "' + topic + '" received.'))
         })
     }
 
@@ -80,7 +84,7 @@ class MqttClient {
 
         try {
             this.client.publish(topic, JSON.stringify(data), {
-                qos: 0,
+                qos: 1,
                 retain: true
             })
         } catch (e) {
@@ -97,7 +101,7 @@ class MqttClient {
 
             try {
                 this.client.publish(topic, JSON.stringify(data), {
-                    qos: 0,
+                    qos: 1,
                     retain: true
                 })
             } catch (e) {
@@ -116,17 +120,17 @@ class MqttClient {
 
         try {
             this.client.publish(newCropTopic, '', {
-                qos: 0,
+                qos: 1,
                 retain: false
             })
             sensors.forEach((sensor) => {
                 this.client.publish(changeValueTopic + sensor + '/', '', {
-                    qos: 0,
+                    qos: 1,
                     retain: false
                 })
             })
             this.client.publish(harvestTopic, data, {
-                qos: 0,
+                qos: 1,
                 retain: false
             })
 
