@@ -1,4 +1,6 @@
+const jwt = require('jsonwebtoken')
 const User = require('../models/user')
+const mailer = require('../middleware/mailer')
 const sensorController = require('../controllers/sensor.controller')
 
 /**
@@ -102,6 +104,63 @@ exports.updateCredentials = async (req, res) => {
 }
 
 /**
+ * Forgot Password.
+ *
+ * Generates a JWT and sends an email with the unique reset link to the user's recovery email.
+ *
+ * @param req   HTTP request argument to the middleware function
+ * @param res   HTTP response argument to the middleware function.
+ */
+exports.forgotPassword = async (req, res) => {
+    try {
+        const user = await User.findOne({'username': 'admin'})
+        const token = jwt.sign({_id: user._id.toString()}, process.env.JWT_SECRET, {expiresIn: '30 minutes'})
+        user.tokens = user.tokens.concat({token})
+        await user.save()
+
+        const email = user.email
+        const maskingLength = email.indexOf('@') - 2
+        const maskedEmail = email.replace(email.substring(1, email.indexOf('@') - 1), '*'.repeat(maskingLength))
+        const link = process.env.HYDRA_URL + '/reset/' + token
+        await mailer(email, link)
+
+        res.status(202).send({'recovery_email': maskedEmail})
+    } catch (e) {
+        res.status(500).send(e)
+    }
+}
+
+/**
+ * Reset Password.
+ *
+ * Resets the password of the user (via Forgot Password).
+ *
+ * @param req   HTTP request argument to the middleware function
+ * @param res   HTTP response argument to the middleware function.
+ */
+exports.resetPassword = async (req, res) => {
+    const fields = Object.keys(req.body)
+
+    if (!fields.includes('password')) {
+        return res.status(500).send({error: 'Invalid update!'})
+    }
+
+    try {
+        const user = await User.findOne({'username': 'admin'})
+        user.password = req.body.password
+        user.tokens = user.tokens.filter((token) => {
+            return token.token !== req.params.token
+        })
+
+        await user.save()
+
+        res.status(202).send('Password successfully reset. Please login again.')
+    } catch (e) {
+        res.status(500).send(e)
+    }
+}
+
+/**
  * Get Admin Info.
  *
  * Sends the admin info without the password and tokens.
@@ -111,19 +170,4 @@ exports.updateCredentials = async (req, res) => {
  */
 exports.getAdminInfo = async (req, res) => {
     res.status(200).send(req.user)
-}
-
-/**
- * Get List of Vacant Pods.
- *
- * Sends a list of all the unoccupied pods to display on the "Setup Name" field of "Start New Crop".
- *
- * @param req   HTTP request argument to the middleware function
- * @param res   HTTP response argument to the middleware function.
- */
-exports.getVacantPods = async (req, res) => {
-    const vacantPods = JSON.stringify(req.user.pods_owned.filter((pod) =>  !pod.occupied))
-    const podNames = JSON.parse(vacantPods, (key, value) => (key !== 'occupied' && key !== '_id') ? value : key[-1]);
-
-    res.status(200).send(podNames)
 }
