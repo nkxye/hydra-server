@@ -271,9 +271,9 @@ exports.getPastCrops = async (req, res) => {
 }
 
 /**
- * Get Past Crops (History).
+ * Get PDF Report
  *
- * Returns the list of past crops to display in the History page.
+ * Returns the PDF Report file for the past crop.
  *
  * @param req   HTTP request argument to the middleware function
  * @param res   HTTP response argument to the middleware function.

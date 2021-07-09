@@ -96,7 +96,7 @@ router.get('/history', cropController.getPastCrops)
 /**
  * Get PDF Report
  *
- * Sends the list of active crops to display on the History page.
+ * Returns the PDF Report file for the past crop.
  *
  * @param {String} route path          The endpoint at which requests can be made.
  * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
