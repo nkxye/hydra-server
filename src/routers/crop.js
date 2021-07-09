@@ -83,6 +83,24 @@ router.get('/crops/active', cropController.getActiveCropList)
  */
 router.get('/crop/:cropId/image', cropController.getCropImage)
 
-// TODO: get past crops (for History)
+/**
+ * Get Past Crops
+ *
+ * Sends the list of active crops to display on the History page.
+ *
+ * @param {String} route path          The endpoint at which requests can be made.
+ * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
+ */
+router.get('/history', cropController.getPastCrops)
+
+/**
+ * Get PDF Report
+ *
+ * Sends the list of active crops to display on the History page.
+ *
+ * @param {String} route path          The endpoint at which requests can be made.
+ * @param {function(Object, Object)}   Async route handler callback with HTTP Request and Response object arguments.
+ */
+router.get('/report/:podName/:id', cropController.getReport)
 
 module.exports = router

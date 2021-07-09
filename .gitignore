@@ -13,6 +13,9 @@ dev.env
 # certs
 certs
 
+# reports
+*.pdf
+
 # JetBrains folder
 .idea
 
