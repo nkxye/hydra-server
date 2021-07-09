@@ -7,7 +7,7 @@ const sensorDataSchema = new mongoose.Schema({
         trim: true
     },
     crop: {
-        type: mongoose.ObjectId,
+        type: String,
         ref: 'Crop',
         required: true
     },

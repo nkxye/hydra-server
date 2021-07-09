@@ -300,6 +300,10 @@ cropSchema.methods.toJSON = function () {
         cropInfo.image = '/crop/' + cropInfo._id + '/image'
     }
 
+    if (!cropInfo.active) {
+        cropInfo.report = '/report/' + cropInfo.pod_name + '/' + cropInfo._id
+    }
+
     return cropInfo
 }
 

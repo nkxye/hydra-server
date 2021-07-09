@@ -1,6 +1,9 @@
 const Crop = require('../models/crop')
+const Journal = require('../models/journal')
 const mqttClient = require('../middleware/mqtt_client')
 const presetController = require('../controllers/preset.controller')
+const reportMaker = require('../middleware/pdf_generator')
+const fs = require('fs')
 
 /**
  * Start New Crop.
@@ -184,10 +187,12 @@ exports.harvestCrop = async (req, res) => {
 
         mqttClient.publishCropHarvest(crop.pod_name, '1')
 
-        // TODO: crop history report derivation logic
+        const entries = await Journal.find({'crop_id': crop._id})
+
+        reportMaker(crop, entries, entries.length)
         res.status(200).send()
     } catch (e) {
-        res.status(400).send(e)
+        res.status(400).send(e.message)
     }
 }
 
@@ -244,5 +249,48 @@ exports.getCropImage = async (req, res) => {
     } else {
         res.set('Content-Type', crop.image.content_type)
         res.status(200).send(crop.image.image_bin)
+    }
+}
+
+/**
+ * Get Past Crops (History).
+ *
+ * Returns the list of past crops to display in the History page.
+ *
+ * @param req   HTTP request argument to the middleware function
+ * @param res   HTTP response argument to the middleware function.
+ */
+exports.getPastCrops = async (req, res) => {
+    try {
+        const pastCrops = JSON.stringify(await Crop.find({'active': false}))
+        const filteredCrops = JSON.parse(pastCrops, (key, value) => (key !== 'threshold_values' && key !== 'latest_data') ? value : key[-1]);
+        res.status(200).send(filteredCrops)
+    } catch (e) {
+        res.status(400).send(e.message)
+    }
+}
+
+/**
+ * Get PDF Report
+ *
+ * Returns the PDF Report file for the past crop.
+ *
+ * @param req   HTTP request argument to the middleware function
+ * @param res   HTTP response argument to the middleware function.
+ */
+exports.getReport = async (req, res) => {
+    try {
+        const fileName = '/reports/'+ req.params.podName + '_' + req.params.id + '_report.pdf'
+        if (fs.existsSync('.' + fileName)) {
+            fs.readFile(process.cwd() + fileName, (err,data) => {
+                res.set({
+                    "Content-Type": "application/pdf",
+                    "Content-Disposition": "inline; filename=" + process.cwd() + fileName,
+                })
+                res.status(200).send(data)
+            })
+        }
+    } catch (e) {
+        res.status(404).send(e)
     }
 }
