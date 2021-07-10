@@ -46,7 +46,7 @@ const presetSchema = new mongoose.Schema({
                 required: true
             }
         },
-        temperature: {
+        air_temperature: {
             min: {
                 type: mongoose.Decimal128,
                 required: true
