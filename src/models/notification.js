@@ -29,22 +29,6 @@ const notificationSchema = new mongoose.Schema({
     }
 })
 
-/**
- * JSON Format for the Notification Object.
- *
- * This instance method converts the ObjectId to timestamp and stores it in the createdAt property.
- * NOTE: Do not use arrow function as it does not allow "this" keyword binding.
- *
- * @return {Object} notif   The retrieved object for the specific notification.
- */
-notificationSchema.methods.toJSON = function () {
-    const notif = this.toObject()
-
-    notif.createdAt = notif._id.getTimestamp()
-
-    return notif
-}
-
 const Notification = mongoose.model('Notification', notificationSchema)
 
 module.exports = Notification
