@@ -1,13 +1,14 @@
 const SensorData = require('../models/sensor_data')
 const Sensor = require("../models/sensor")
 const Crop = require("../models/crop")
+const notifier = require('../middleware/notification')
 
 /**
  * Retrieve Data.
  *
  * Stores the newly parsed data from the MQTT broker to the database.
  *
- * @param req   HTTP request argument to the middleware function
+ * @param req   HTTP request argument to the middleware function.
  * @param res   HTTP response argument to the middleware function.
  */
 exports.retrieve = async (podName, dataType, message) => {
@@ -69,11 +70,22 @@ exports.retrieve = async (podName, dataType, message) => {
                 if (hasThreshold.includes(key)) {
                     if (currentValue < crop.threshold_values[key].min || currentValue > crop.threshold_values[key].max) {
                         normalVal = false
+
+                        // trigger threshold push notification
+                        if (currentValue < crop.threshold_values[key].min) {
+                            // TODO: func accept crop.pod_name, "min" , key
+                            notifier.setPayload(crop.pod_name, "min", key)
+                        } else {
+                            // TODO: func accept crop.pod_name, "max" , key
+                            notifier.setPayload(crop.pod_name, "max", key)
+                        }
                     }
-                } else if (sensorNames[key] === 'contactless_liquid_level' && currentValue === 15) {
+                } else if ((sensorNames[key] === 'contactless_liquid_level' && currentValue === 15) ||
+                    (sensorNames[key] === 'reservoir_level' && currentValue !== 100)) {
                     normalVal = false
-                } else if (sensorNames[key] === 'reservoir_level' && currentValue !== 100) {
-                    normalVal = false
+                    // trigger critical level push notification
+                    // TODO: func accept crop.pod_name,  "critical", key
+                    notifier.setPayload(crop.pod_name, "critical", key)
                 }
 
                 // update latest_data property of crop
@@ -105,6 +117,15 @@ exports.retrieve = async (podName, dataType, message) => {
                 if (hasThreshold.includes(key)) {
                     if (currentValue < crop.threshold_values[key].min || currentValue > crop.threshold_values[key].max) {
                         normalVal = false
+
+                        // trigger push notification
+                        if (currentValue < crop.threshold_values[key].min) {
+                            // TODO: func accept crop.pod_name, "min" , key
+                            notifier.setPayload(crop.pod_name, "min", key)
+                        } else {
+                            // TODO: func accept crop.pod_name, "max" , key
+                            notifier.setPayload(crop.pod_name, "max", key)
+                        }
                     }
                 }
 
