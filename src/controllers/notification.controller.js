@@ -4,10 +4,10 @@ const notifier = require('../middleware/notification')
 /**
  * Send Notification.
  *
- * Pushes the notification via service worker using a new/existing subscription
+ * Pushes the notification via service worker using a new/existing subscription.
  *
- * @param cropName          crop name derived from "Start New Crop"
- * @param thresholdValues   threshold values derived from "Start New Crop"
+ * @param req   HTTP request argument to the middleware function
+ * @param res   HTTP response argument to the middleware function.
  */
 exports.sendNotification = async (req, res) => {
     try {
