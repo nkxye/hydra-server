@@ -1,6 +1,11 @@
 const mongoose = require('mongoose')
 
 const notificationSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true,
+        trim: true
+    },
     message: {
         type: String,
         required: true,
@@ -10,10 +15,12 @@ const notificationSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    data_id: {
+    pod_name: {
         type: String,
-        ref: 'Sensor Data',
-        required: true
+        required: true,
+        trim: true,
+        minLength: 5,
+        maxLength: 15
     },
     createdAt: {
         type: Date,

@@ -1,4 +1,5 @@
 const webPush = require('web-push')
+const Notif = require("../models/notification")
 
 /**
  * Notification Class.
@@ -50,11 +51,6 @@ class Notification {
                 } else {
                     body = 'The ' + sensorName + ' container has hit its critical level! ' + mitigation
                 }
-
-                this.payload = JSON.stringify({
-                    title: title,
-                    body: body
-                })
             } else if (notifType === 'max') {
                 title = '[' + podName + ']' + sensorName + ': Exceeded Threshold'
 
@@ -67,11 +63,6 @@ class Notification {
                 }
 
                 body = 'The ' + sensorName + ' has exceeded the maximum threshold value! ' + mitigation
-
-                this.payload = JSON.stringify({
-                    title: title,
-                    body: body
-                })
             } else if (notifType === 'min') {
                 title = '[' + podName + ']' + sensorName + ': Below Threshold'
 
@@ -86,14 +77,22 @@ class Notification {
                 }
 
                 body = 'The ' + sensorName + ' has fallen below the minimum threshold value! ' + mitigation
-
-                this.payload = JSON.stringify({
-                    title: title,
-                    body: body
-                })
-            } else {
-                console.error('Notif type is invalid! Value: ' + notifType)
             }
+
+            const entry = new Notif({
+                title: title,
+                message: body,
+                pod_name: podName
+            })
+
+            entry.save(function (err) {
+                if (err) console.error(err)
+            })
+
+            this.payload = JSON.stringify({
+                title: title,
+                body: body
+            })
         } else {
             console.error('Sensor key is invalid! Value: ' + sensorKey)
         }
