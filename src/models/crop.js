@@ -116,6 +116,24 @@ const cropSchema = new mongoose.Schema({
                 default: true
             }
         },
+        vpd: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: mongoose.Decimal128,
+                default: 0.0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
+            }
+        },
         ph_level: {
             timestamp: {
                 type: Date,
@@ -359,6 +377,32 @@ cropSchema.pre('save', async function (next) {
                     parseFloat(crop.threshold_values.air_temperature.max)
                 ]
             })
+        }
+
+        // compute VPD
+        if (crop.isModified('latest_data.air_temperature') || crop.isModified('latest_data.humidity')) {
+            const temperature = parseFloat(crop.latest_data.air_temperature.value)
+            const humidity = parseFloat(crop.latest_data.humidity.value)
+
+            let saturationVaporPressure = 610.7 * (Math.pow(10, (7.5 * temperature / (237.3 + temperature))))
+            let vaporPressureDeficit = (((100 - humidity) / 100) * saturationVaporPressure) / 1000
+
+            if (vaporPressureDeficit > crop.latest_data.vpd.value) {
+                crop.latest_data.vpd.increase = true
+            } else if (vaporPressureDeficit < crop.latest_data.vpd.value) {
+                crop.latest_data.vpd.increase = -1
+            } else {
+                crop.latest_data.vpd.increase = 0
+            }
+
+            crop.latest_data.vpd.value = vaporPressureDeficit
+            crop.latest_data.vpd.timestamp = Date.now()
+
+            if (!crop.latest_data.air_temperature.normal || !crop.latest_data.humidity.normal) {
+                crop.latest_data.vpd.normal = false
+            } else {
+                crop.latest_data.vpd.normal = true
+            }
         }
     }
 
