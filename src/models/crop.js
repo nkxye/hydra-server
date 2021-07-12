@@ -355,8 +355,8 @@ cropSchema.pre('save', async function (next) {
         if (crop.isModified('threshold_values.temperature.min') || crop.isModified('threshold_values.temperature.max')) {
             mqttClient.publishRevisedCropSettings(crop.pod_name, 'air_temperature', {
                 'air_temperature': [
-                    parseFloat(crop.threshold_values.temperature.min),
-                    parseFloat(crop.threshold_values.temperature.max)
+                    parseFloat(crop.threshold_values.air_temperature.min),
+                    parseFloat(crop.threshold_values.air_temperature.max)
                 ]
             })
         }
