@@ -73,10 +73,8 @@ exports.retrieve = async (podName, dataType, message) => {
 
                         // trigger threshold push notification
                         if (currentValue < crop.threshold_values[key].min) {
-                            // TODO: func accept crop.pod_name, "min" , key
                             notifier.setPayload(crop.pod_name, "min", key)
                         } else {
-                            // TODO: func accept crop.pod_name, "max" , key
                             notifier.setPayload(crop.pod_name, "max", key)
                         }
                     }
@@ -84,7 +82,6 @@ exports.retrieve = async (podName, dataType, message) => {
                     (sensorNames[key] === 'reservoir_level' && currentValue !== 100)) {
                     normalVal = false
                     // trigger critical level push notification
-                    // TODO: func accept crop.pod_name,  "critical", key
                     notifier.setPayload(crop.pod_name, "critical", key)
                 }
 
@@ -120,10 +117,8 @@ exports.retrieve = async (podName, dataType, message) => {
 
                         // trigger push notification
                         if (currentValue < crop.threshold_values[key].min) {
-                            // TODO: func accept crop.pod_name, "min" , key
                             notifier.setPayload(crop.pod_name, "min", key)
                         } else {
-                            // TODO: func accept crop.pod_name, "max" , key
                             notifier.setPayload(crop.pod_name, "max", key)
                         }
                     }

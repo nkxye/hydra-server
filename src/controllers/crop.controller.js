@@ -3,6 +3,7 @@ const Journal = require('../models/journal')
 const mqttClient = require('../middleware/mqtt_client')
 const presetController = require('../controllers/preset.controller')
 const reportMaker = require('../middleware/pdf_generator')
+const notifier = require('../middleware/notification')
 const fs = require('fs')
 
 /**
@@ -86,6 +87,7 @@ exports.startNewCrop = async (req, res) => {
                 }
 
                 mqttClient.subscribeToPod(crop.pod_name)
+                notifier.setPayload(crop.pod_name, 'init', 'init')
 
                 await crop.save()
                 await presetController.createNewPreset(crop.crop_name, crop.threshold_values)

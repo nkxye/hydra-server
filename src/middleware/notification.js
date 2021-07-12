@@ -8,7 +8,6 @@ const Notif = require("../models/notification")
  */
 class Notification {
     constructor() {
-        this.pusher = null
         this.payload = null
         this.pushContact = process.env.WEBPUSH_MAIL
         this.publicKey = process.env.PUBLIC_VAPID_KEY
@@ -24,6 +23,8 @@ class Notification {
     }
 
     setPayload(podName, notifType, sensorKey) {
+        const pod = podName.toUpperCase()
+
         const sensors = {
             'humidity': 'humidity',
             'air_temperature': 'air temperature',
@@ -38,13 +39,14 @@ class Notification {
             'water_temperature': 'water temperature'
         }
 
-        if (Object.keys(sensors).includes(sensorKey)) {
-            const sensorName = sensors[sensorKey]
+        if (Object.keys(sensors).includes(sensorKey) || sensorKey === 'init') {
             const reservoirKeys = ['nutrient_A', 'nutrient_B', 'nutrient_C', 'ph_up', 'ph_down', 'water_level']
-            let title, body, mitigation = ''
+            let title, body, mitigation, sensorName = ''
+
+            if (sensorKey !== 'init') sensorName = sensors[sensorKey]
 
             if (reservoirKeys.includes(sensorKey) && notifType === 'critical') {
-                title = '[' + podName + ']' + sensorName + ': Critical Level'
+                title = '[' + pod + ']' + sensorName + ': Critical Level'
                 mitigation = 'Refill is needed.'
                 if (sensorKey === 'water_level') {
                     body = 'The ' + sensorName + ' has hit its critical level! ' + mitigation
@@ -52,7 +54,7 @@ class Notification {
                     body = 'The ' + sensorName + ' container has hit its critical level! ' + mitigation
                 }
             } else if (notifType === 'max') {
-                title = '[' + podName + ']' + sensorName + ': Exceeded Threshold'
+                title = '[' + pod + ']' + sensorName + ': Exceeded Threshold'
 
                 if (sensorKey === 'air_temperature' || sensorKey === 'humidity') {
                     mitigation = 'Turning on the fan...'
@@ -64,7 +66,7 @@ class Notification {
 
                 body = 'The ' + sensorName + ' has exceeded the maximum threshold value! ' + mitigation
             } else if (notifType === 'min') {
-                title = '[' + podName + ']' + sensorName + ': Below Threshold'
+                title = '[' + pod + ']' + sensorName + ': Below Threshold'
 
                 if (sensorKey === 'air_temperature') {
                     mitigation = 'Please move the setup to a warmer spot.'
@@ -77,6 +79,9 @@ class Notification {
                 }
 
                 body = 'The ' + sensorName + ' has fallen below the minimum threshold value! ' + mitigation
+            } else if (notifType === 'init') {
+                title = pod + ' has been initialized!'
+                body = 'You should now see the crop\'s progress in its very own dashboard.'
             }
 
             const entry = new Notif({
