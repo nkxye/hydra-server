@@ -116,6 +116,24 @@ const cropSchema = new mongoose.Schema({
                 default: true
             }
         },
+        vpd: {
+            timestamp: {
+                type: Date,
+                default: Date.now()
+            },
+            value: {
+                type: mongoose.Decimal128,
+                default: 0.0
+            },
+            increase: {
+                type: Number, // -1 = decrease, 0 = equal, 1 = increase
+                default: 0
+            },
+            normal: {
+                type: Boolean,
+                default: true
+            }
+        },
         ph_level: {
             timestamp: {
                 type: Date,
@@ -355,8 +373,8 @@ cropSchema.pre('save', async function (next) {
         if (crop.isModified('threshold_values.temperature.min') || crop.isModified('threshold_values.temperature.max')) {
             mqttClient.publishRevisedCropSettings(crop.pod_name, 'air_temperature', {
                 'air_temperature': [
-                    parseFloat(crop.threshold_values.temperature.min),
-                    parseFloat(crop.threshold_values.temperature.max)
+                    parseFloat(crop.threshold_values.air_temperature.min),
+                    parseFloat(crop.threshold_values.air_temperature.max)
                 ]
             })
         }
