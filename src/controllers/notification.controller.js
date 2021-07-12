@@ -1,4 +1,3 @@
-const Preset = require('../models/preset')
 const notifier = require('../middleware/notification')
 
 /**
