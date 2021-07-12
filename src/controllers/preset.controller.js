@@ -10,7 +10,6 @@ const Preset = require('../models/preset')
  */
 exports.createNewPreset = async (cropName, thresholdValues) => {
     try {
-        // TODO: save new preset
         const presetExists = await Preset.exists({'preset_name': cropName})
 
         if (!presetExists) {

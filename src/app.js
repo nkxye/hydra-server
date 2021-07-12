@@ -6,7 +6,9 @@ const cropRouter = require('./routers/crop')
 const podRouter = require('./routers/pod')
 const presetRouter = require('./routers/preset')
 const journalRouter = require('./routers/journal')
+const notifRouter = require('./routers/notfication')
 const mqttClient = require('./middleware/mqtt_client')
+const notifier = require('./middleware/notification')
 
 const app = express()
 const port = process.env.PORT
@@ -28,7 +30,9 @@ app.use(cropRouter)
 app.use(podRouter)
 app.use(presetRouter)
 app.use(journalRouter)
+app.use(notifRouter)
 
+notifier.setVapid()
 mqttClient.connectToBroker()
 
 app.listen(port, () => {
