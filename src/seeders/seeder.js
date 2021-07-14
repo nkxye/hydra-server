@@ -1,32 +1,26 @@
-const { startOfYesterday, endOfYesterday, startOfWeek, endOfWeek, format } = require('date-fns')
 const yargs = require('yargs')
 const chalk = require('chalk')
-require('../db/mongoose')
+const mongoose = require('mongoose')
 const SensorData = require('../models/sensor_data')
 const Crop = require('../models/crop')
 const User = require('../models/user')
+const sensorController = require('../controllers/sensor.controller')
 const analyticsController = require('../controllers/analytics.controller')
-
-const threshold_values = {
-    conductivity: {
-        min: 0.5,
-        max: 2
-    },
-    humidity: {
-        min: 50,
-        max: 60
-    },
-    ph_level: {
-        min: 5.5,
-        max: 6.5
-    },
-    air_temperature: {
-        min: 18,
-        max: 16
-    }
-}
+const MONGODB_URL = 'mongodb://127.0.0.1:27017/hydr-a'
 
 // Math.floor(Math.random() * (max - min + 1)) + min
+
+mongoose.connect(MONGODB_URL, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false
+}).then(() => {
+    console.log('Successfully connected to the MongoDB cluster.')
+    sensorController.insertSensors()
+}).catch((e) => {
+    console.error(e);
+});
 
 yargs.version('1.0.0')
 
@@ -48,13 +42,30 @@ yargs.command({
             pod_name: argv.podName,
             active: false,
             initialize_pumps: true,
-            threshold_values: threshold_values
+            threshold_values: {
+                conductivity: {
+                    min: 0.5,
+                    max: 2
+                },
+                humidity: {
+                    min: 50,
+                    max: 60
+                },
+                ph_level: {
+                    min: 5.5,
+                    max: 6.5
+                },
+                air_temperature: {
+                    min: 18,
+                    max: 26
+                }
+            }
         })
 
         await crop.save()
 
-        crop.createdAt = new Date() // TODO: random date
-        crop.updatedAt = new Date() // TODO: random date
+        crop.createdAt = new Date(2021, 7, 1)
+        crop.updatedAt = new Date(2021, 7, 14)
 
         await crop.save({ timestamps: false })
     }
@@ -77,39 +88,73 @@ yargs.command({
             {
                 sensor: 'conductivity',
                 crop: argv.cropId,
-                start: Date.now(), // TODO: random date
-                end: Date.now(), // TODO: random date
-                measurement_count: 1,
-                sum_values: 1.2
+                start: new Date(2021, 6, 12, 11, 30),
+                end: new Date(2021, 6, 12, 23, 30),
+                measurement_count: 30,
+                sum_values: 54
             },
             {
                 sensor: 'humidity',
                 crop: argv.cropId,
-                start: Date.now(), // TODO: random date
-                end: Date.now(), // TODO: random date
-                measurement_count: 1,
-                sum_values: 60
+                start: new Date(2021, 6, 12, 11, 30),
+                end: new Date(2021, 6, 12, 23, 30),
+                measurement_count: 21,
+                sum_values: 1145
             },
             {
                 sensor: 'ph_level',
                 crop: argv.cropId,
-                start: Date.now(), // TODO: random date
-                end: Date.now(), // TODO: random date
-                measurement_count: 1,
-                sum_values: 6
+                start: new Date(2021, 6, 12, 11, 30),
+                end: new Date(2021, 6, 12, 23, 30),
+                measurement_count: 30,
+                sum_values: 174
             },
             {
                 sensor: 'air_temperature',
                 crop: argv.cropId,
-                start: Date.now(), // TODO: random date
-                end: Date.now(), // TODO: random date
-                measurement_count: 1,
-                sum_values: 26
+                start: new Date(2021, 6, 12, 11, 30),
+                end: new Date(2021, 6, 12, 23, 30),
+                measurement_count: 30,
+                sum_values: 570
+            },
+            {
+                sensor: 'conductivity',
+                crop: argv.cropId,
+                start: new Date(2021, 6, 13, 11, 30),
+                end: new Date(2021, 6, 13, 23, 30),
+                measurement_count: 30,
+                sum_values: 24
+            },
+            {
+                sensor: 'humidity',
+                crop: argv.cropId,
+                start: new Date(2021, 6, 13, 11, 30),
+                end: new Date(2021, 6, 13, 23, 30),
+                measurement_count: 17,
+                sum_values: 947
+            },
+            {
+                sensor: 'ph_level',
+                crop: argv.cropId,
+                start: new Date(2021, 6, 13, 11, 30),
+                end: new Date(2021, 6, 13, 23, 30),
+                measurement_count: 30,
+                sum_values: 176
+            },
+            {
+                sensor: 'air_temperature',
+                crop: argv.cropId,
+                start: new Date(2021, 6, 13, 11, 30),
+                end: new Date(2021, 6, 13, 23, 30),
+                measurement_count: 30,
+                sum_values: 654
             }
         ]
 
-        const sensorData = await new SensorData.insertMany(data)
-        await sensorData.save()
+        await SensorData.insertMany(data).then((r) => {
+            console.log(chalk.bold.green.inverse('Successfully seeded sensor data for cropId: ' + argv.cropId + '.'))
+            process.exit()
+        })
     }
 })
 
@@ -125,7 +170,10 @@ yargs.command({
     },
     handler: async (argv) => {
         console.log(chalk.bold.blue.inverse('Inserting dummy analytics for the provided Crop ID...'))
-        await analyticsController.updateAnalytics(argv.cropId)
+        await analyticsController.updateAnalytics(argv.cropId).then((r) => {
+            console.log(chalk.bold.green.inverse('Successfully updated analytics for cropId: ' + argv.cropId + '.'))
+            process.exit()
+        })
     }
 })
 
