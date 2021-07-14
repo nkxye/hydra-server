@@ -3,7 +3,6 @@ const chalk = require('chalk')
 const mongoose = require('mongoose')
 const SensorData = require('../models/sensor_data')
 const Crop = require('../models/crop')
-const User = require('../models/user')
 const sensorController = require('../controllers/sensor.controller')
 const analyticsController = require('../controllers/analytics.controller')
 const MONGODB_URL = 'mongodb://127.0.0.1:27017/hydr-a'
