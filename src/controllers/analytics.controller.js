@@ -81,9 +81,8 @@ exports.getChartData = async (req, res) => {
     res.status(200).send(chartDataset)
 }
 
-// TODO: cron job to update analyticsx
-// TODO: seeder for analytics, history
-updateAnalytics = async (cropId) => {
+// TODO: cron job to update analytics
+exports.updateAnalytics = async (cropId) => {
     const sensors = ['humidity', 'air_temperature', 'conductivity', 'ph_level']
 
     for (const sensor of sensors) {
