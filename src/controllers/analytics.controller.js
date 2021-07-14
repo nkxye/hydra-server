@@ -1,6 +1,6 @@
 const Analytics = require('../models/analytics')
 const SensorData = require('../models/sensor_data')
-const { startOfYesterday, endOfYesterday, startOfWeek, endOfWeek, format } = require('date-fns')
+const { startOfYesterday, endOfYesterday, startOfWeek, endOfWeek, startOfDay, endOfDay, format } = require('date-fns')
 
 /**
  * Get Chart Data.
@@ -18,8 +18,6 @@ exports.getChartData = async (req, res) => {
             $lt: endOfWeek(new Date())
         }
     }).sort('date')
-
-    console.log(analyticData)
 
     let humidityDataset;
     humidityDataset = [];
@@ -85,18 +83,19 @@ exports.getChartData = async (req, res) => {
     res.status(200).send(chartDataset)
 }
 
-// TODO: cron job to update analytics
-exports.updateAnalytics = async (cropId) => {
+exports.updateAnalyticsDaily = async (cropId) => {
+    // TODO: cron job to update analytics
+
     const sensors = ['humidity', 'air_temperature', 'conductivity', 'ph_level']
 
     for (const sensor of sensors) {
         let data = await SensorData.find({
-                crop: cropId,
-                sensor: sensor,
-                start: {
-                    "$gte": startOfYesterday(Date.now()),
-                    "$lt": endOfYesterday(Date.now())
-                }
+            crop: cropId,
+            sensor: sensor,
+            start: {
+                "$gte": startOfYesterday(Date.now()),
+                "$lte": endOfYesterday(Date.now())
+            }
         })
 
         let measurementCount = 0, totalSum = 0
@@ -113,6 +112,41 @@ exports.updateAnalytics = async (cropId) => {
             crop_id: cropId,
             average: average,
             date: startOfYesterday(new Date())
+        })
+
+        await chartData.save()
+    }
+}
+
+exports.updateAnalyticsDailySeeder = async (cropId, date) => {
+    // TODO: cron job to update analytics
+
+    const sensors = ['humidity', 'air_temperature', 'conductivity', 'ph_level']
+
+    for (const sensor of sensors) {
+        let data = await SensorData.find({
+            crop: cropId,
+            sensor: sensor,
+            start: {
+                "$gte": startOfDay(date),
+                "$lte": endOfDay(date)
+            }
+        })
+
+        let measurementCount = 0, totalSum = 0
+
+        for (const entry of data) {
+            measurementCount += parseInt(entry.measurement_count)
+            totalSum += parseFloat(entry.sum_values)
+        }
+
+        let average = totalSum / measurementCount
+
+        let chartData = new Analytics({
+            sensor: sensor,
+            crop_id: cropId,
+            average: average,
+            date: startOfDay(date)
         })
 
         await chartData.save()

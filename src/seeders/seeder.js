@@ -147,6 +147,70 @@ yargs.command({
                 end: new Date(2021, 6, 13, 23, 30),
                 measurement_count: 30,
                 sum_values: 654
+            },
+            {
+                sensor: 'conductivity',
+                crop: argv.cropId,
+                start: new Date(2021, 6, 14, 11, 30),
+                end: new Date(2021, 6, 14, 23, 30),
+                measurement_count: 30,
+                sum_values: 20
+            },
+            {
+                sensor: 'humidity',
+                crop: argv.cropId,
+                start: new Date(2021, 6, 14, 11, 30),
+                end: new Date(2021, 6, 14, 23, 30),
+                measurement_count: 17,
+                sum_values: 887
+            },
+            {
+                sensor: 'ph_level',
+                crop: argv.cropId,
+                start: new Date(2021, 6, 14, 11, 30),
+                end: new Date(2021, 6, 14, 23, 30),
+                measurement_count: 30,
+                sum_values: 253
+            },
+            {
+                sensor: 'air_temperature',
+                crop: argv.cropId,
+                start: new Date(2021, 6, 14, 11, 30),
+                end: new Date(2021, 6, 14, 23, 30),
+                measurement_count: 30,
+                sum_values: 762
+            },
+            {
+                sensor: 'conductivity',
+                crop: argv.cropId,
+                start: new Date(2021, 6, 15, 11, 30),
+                end: new Date(2021, 6, 15, 23, 30),
+                measurement_count: 80,
+                sum_values: 47
+            },
+            {
+                sensor: 'humidity',
+                crop: argv.cropId,
+                start: new Date(2021, 6, 15, 11, 30),
+                end: new Date(2021, 6, 15, 23, 30),
+                measurement_count: 30,
+                sum_values: 1582
+            },
+            {
+                sensor: 'ph_level',
+                crop: argv.cropId,
+                start: new Date(2021, 6, 15, 11, 30),
+                end: new Date(2021, 6, 15, 23, 30),
+                measurement_count: 30,
+                sum_values: 216
+            },
+            {
+                sensor: 'air_temperature',
+                crop: argv.cropId,
+                start: new Date(2021, 6, 15, 11, 30),
+                end: new Date(2021, 6, 15, 23, 30),
+                measurement_count: 30,
+                sum_values: 576
             }
         ]
 
@@ -169,10 +233,11 @@ yargs.command({
     },
     handler: async (argv) => {
         console.log(chalk.bold.blue.inverse('Inserting dummy analytics for the provided Crop ID...'))
-        await analyticsController.updateAnalytics(argv.cropId).then((r) => {
-            console.log(chalk.bold.green.inverse('Successfully updated analytics for cropId: ' + argv.cropId + '.'))
-            process.exit()
-        })
+        await analyticsController.updateAnalyticsDailySeeder(argv.cropId, new Date(2021, 6, 12))
+        await analyticsController.updateAnalyticsDailySeeder(argv.cropId, new Date(2021, 6, 13))
+        await analyticsController.updateAnalyticsDailySeeder(argv.cropId, new Date(2021, 6, 14))
+        await analyticsController.updateAnalyticsDailySeeder(argv.cropId, new Date(2021, 6, 15))
+        process.exit()
     }
 })
 
