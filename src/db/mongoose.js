@@ -4,7 +4,7 @@ const sensorController = require('../controllers/sensor.controller')
 /**
  * Establish MongoDB Connection.
  *
- * This connects the app to the MongoDB Atlas cluster via Mongoose ORM.
+ * This connects the app to the MongoDB cluster via Mongoose ORM.
  *
  */
 mongoose.connect(process.env.MONGODB_URL, {
@@ -13,7 +13,7 @@ mongoose.connect(process.env.MONGODB_URL, {
     useUnifiedTopology: true,
     useFindAndModify: false
 }).then(() => {
-    console.log('Successfully connected to the MongoDB Atlas cluster.')
+    console.log('Successfully connected to the MongoDB cluster.')
     sensorController.insertSensors()
 }).catch((e) => {
     console.error(e);

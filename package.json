@@ -17,7 +17,9 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "chalk": "^3.0.0",
     "cors": "^2.8.5",
+    "date-fns": "^2.22.1",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.6",
@@ -27,7 +29,8 @@
     "nodemailer": "^6.6.2",
     "pdfkit": "^0.12.1",
     "validator": "^13.6.0",
-    "web-push": "^3.4.5"
+    "web-push": "^3.4.5",
+    "yargs": "^17.0.1"
   },
   "devDependencies": {
     "env-cmd": "^10.1.0",
