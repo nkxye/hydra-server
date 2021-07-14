@@ -12,12 +12,14 @@ const { startOfYesterday, endOfYesterday, startOfWeek, endOfWeek, format } = req
  */
 exports.getChartData = async (req, res) => {
     const analyticData = await Analytics.find({
-        crop: req.params.cropId,
+        crop_id: req.params.cropId,
         date: {
             $gte: startOfWeek(new Date()),
-            $lte: endOfWeek(new Date())
+            $lt: endOfWeek(new Date())
         }
-    }).sort('date');
+    }).sort('date')
+
+    console.log(analyticData)
 
     let humidityDataset;
     humidityDataset = [];
@@ -41,7 +43,9 @@ exports.getChartData = async (req, res) => {
             phDataset.push(data.average)
         }
 
-        labels.push(format(new Date(data.date), 'P'))
+        if (!labels.includes(format(new Date(data.date), 'P'))) {
+            labels.push(format(new Date(data.date), 'P'))
+        }
     }
 
     let chartDataset = {
@@ -90,17 +94,17 @@ exports.updateAnalytics = async (cropId) => {
                 crop: cropId,
                 sensor: sensor,
                 start: {
-                    $gte: startOfYesterday(new Date()),
-                    $lte: endOfYesterday(new Date())
+                    "$gte": startOfYesterday(Date.now()),
+                    "$lt": endOfYesterday(Date.now())
                 }
         })
 
         let measurementCount = 0, totalSum = 0
 
-        data.forEach((entry) => {
+        for (const entry of data) {
             measurementCount += parseInt(entry.measurement_count)
             totalSum += parseFloat(entry.sum_values)
-        })
+        }
 
         let average = totalSum / measurementCount
 
