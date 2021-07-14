@@ -29,11 +29,14 @@ const createReport = (crop, entries, entryCount) => {
     doc.fontSize(8).font('Helvetica').text('A = automated, U = user defined')
     doc.moveDown()
 
-    entries.forEach((entry) => {
-        let automated = (entry.automated) ? 'A' : 'U'
-        doc.fontSize(13).text('-  [' + automated + '] ' + dateFormatter(entry.start_date) + ' - ' + dateFormatter(entry.end_date) + ' | ' + entry.title)
-    })
-
+    if (entryCount !== 0) {
+        entries.forEach((entry) => {
+            let automated = (entry.automated) ? 'A' : 'U'
+            doc.fontSize(13).text('-  [' + automated + '] ' + dateFormatter(entry.start_date) + ' - ' + dateFormatter(entry.end_date) + ' | ' + entry.title)
+        })
+    } else {
+        doc.fontSize(13).text('- No journal entries recorded -')
+    }
     doc.end()
 }
 
