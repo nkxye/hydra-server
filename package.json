@@ -21,6 +21,7 @@
     "cors": "^2.8.5",
     "date-fns": "^2.22.1",
     "express": "^4.17.1",
+    "got": "^9.6.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.6",
     "mongoose": "^5.12.7",
