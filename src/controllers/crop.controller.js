@@ -187,7 +187,7 @@ exports.harvestCrop = async (req, res) => {
         await req.user.save()
         await crop.save()
 
-        mqttClient.publishCropHarvest(crop.pod_name, '1')
+        mqttClient.publishCropHarvest(crop.pod_name, {'harvest': true})
 
         const entries = await Journal.find({'crop_id': crop._id})
 

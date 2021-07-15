@@ -133,7 +133,7 @@ class MqttClient {
                     retain: false
                 })
             })
-            this.client.publish(harvestTopic, data, {
+            this.client.publish(harvestTopic, JSON.stringify(data), {
                 qos: 1,
                 retain: false
             })
