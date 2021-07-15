@@ -30,19 +30,21 @@ exports.getChartData = async (req, res) => {
     let labels;
     labels = [];
 
-    for (const data of analyticData) {
-        if (data.sensor === 'humidity') {
-            humidityDataset.push(data.average)
-        } else if (data.sensor === 'air_temperature') {
-            temperatureDataset.push(data.average)
-        } else if (data.sensor === 'conductivity') {
-            ecDataset.push(data.average)
-        } else if (data.sensor === 'ph_level') {
-            phDataset.push(data.average)
-        }
+    if (typeof analyticData !== 'undefined' && analyticData !== null) {
+        for (const data of analyticData) {
+            if (data.sensor === 'humidity') {
+                humidityDataset.push(parseFloat(data.average))
+            } else if (data.sensor === 'air_temperature') {
+                temperatureDataset.push(parseFloat(data.average))
+            } else if (data.sensor === 'conductivity') {
+                ecDataset.push(parseFloat(data.average))
+            } else if (data.sensor === 'ph_level') {
+                phDataset.push(parseFloat(data.average))
+            }
 
-        if (!labels.includes(format(new Date(data.date), 'P'))) {
-            labels.push(format(new Date(data.date), 'P'))
+            if (!labels.includes(format(new Date(data.date), 'P'))) {
+                labels.push(format(new Date(data.date), 'P'))
+            }
         }
     }
 
