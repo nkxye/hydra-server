@@ -258,10 +258,12 @@ updateBucket = async (sensor, cropId, newValue) => {
 exports.resubscribe = async () => {
     const user = await User.findOne({username: 'admin'})
 
-    for (let i = 0; i < user.pods_owned.length; i++) {
-        if (user.pods_owned[i].occupied) {
-            console.log('Resubscribing to topics for ' + user.pods_owned[i].pod_name.toUpperCase() + '...')
-            mqttClient.subscribeToPod(user.pods_owned[i].pod_name)
+    if (typeof user !== 'undefined' || Object.keys(user).length !== 0) {
+        for (let i = 0; i < user.pods_owned.length; i++) {
+            if (user.pods_owned[i].occupied) {
+                console.log('Resubscribing to topics for ' + user.pods_owned[i].pod_name.toUpperCase() + '...')
+                mqttClient.subscribeToPod(user.pods_owned[i].pod_name)
+            }
         }
     }
 }
