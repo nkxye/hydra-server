@@ -33,10 +33,8 @@ exports.createJournalEntry = async (req, res) => {
  * @param crop      ObjectId for the target crop.
  * @param start     Start date for the journal entry.
  * @param end       End date for the journal entry.
- * @param pod       Target pod/setup for the journal entry.
  */
-exports.createAutomatedJournalEntry = async (title, start, end, crop, pod) => {
-    // TODO: integrate in sensor data for critical
+exports.createAutomatedJournalEntry = async (title, start, end, crop) => {
     try {
         const entry = new Journal({
             title: title,
