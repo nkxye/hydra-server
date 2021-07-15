@@ -19,7 +19,7 @@ class Notification {
     }
 
     notify(subscription) {
-        webPush.sendNotification(subscription, this.payload).then(result => console.log(result)).catch(e => console.log(e.message))
+        webPush.sendNotification(subscription, this.payload).then(result => console.log('Notification triggered.')).catch(e => console.log(e.message))
     }
 
     setPayload(podName, notifType, sensorKey) {
@@ -46,7 +46,7 @@ class Notification {
             if (sensorKey !== 'init') sensorName = sensors[sensorKey]
 
             if (reservoirKeys.includes(sensorKey) && notifType === 'critical') {
-                title = '[' + pod + ']' + sensorName + ': Critical Level'
+                title = '[' + pod + '] ' + sensorName + ': Critical Level'
                 mitigation = 'Refill is needed.'
                 if (sensorKey === 'water_level') {
                     body = 'The ' + sensorName + ' has hit its critical level! ' + mitigation
@@ -54,7 +54,7 @@ class Notification {
                     body = 'The ' + sensorName + ' container has hit its critical level! ' + mitigation
                 }
             } else if (notifType === 'max') {
-                title = '[' + pod + ']' + sensorName + ': Exceeded Threshold'
+                title = '[' + pod + '] ' + sensorName + ': Exceeded Threshold'
 
                 if (sensorKey === 'air_temperature' || sensorKey === 'humidity') {
                     mitigation = 'Turning on the fan...'
@@ -66,7 +66,7 @@ class Notification {
 
                 body = 'The ' + sensorName + ' has exceeded the maximum threshold value! ' + mitigation
             } else if (notifType === 'min') {
-                title = '[' + pod + ']' + sensorName + ': Below Threshold'
+                title = '[' + pod + '] ' + sensorName + ': Below Threshold'
 
                 if (sensorKey === 'air_temperature') {
                     mitigation = 'Please move the setup to a warmer spot.'
@@ -82,6 +82,9 @@ class Notification {
             } else if (notifType === 'init') {
                 title = pod + ' has been initialized!'
                 body = 'You should now see the crop\'s progress in its very own dashboard.'
+            } else if (notifType === 'reservoir') {
+                title = '[' + pod + '] ' + sensorName + ': Temperature Not Optimal'
+                body = 'The water reservoir\'s temperature is not optimal.'
             }
 
             const entry = new Notif({

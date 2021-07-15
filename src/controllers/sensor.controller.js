@@ -4,6 +4,8 @@ const Crop = require("../models/crop")
 const User = require("../models/user")
 const notifier = require('../middleware/notification')
 const mqttClient = require('../middleware/mqtt_client')
+const journalController = require('../controllers/journal.controller')
+const { add } = require('date-fns')
 
 /**
  * Retrieve Data.
@@ -44,6 +46,10 @@ exports.retrieve = async (podName, dataType, message) => {
         // sensors with threshold values specified
         const hasThreshold = ['humidity', 'conductivity', 'ph_level', 'air_temperature']
 
+        let journalTitle = ''
+        const startEntryDate = Date.now()
+        const endEntryDate = add(startEntryDate, {minutes: 5})
+
         if (dataType === 'sensor_data') {
             // convert boolean to 15% and 100%
             if (messageJSON.contactless_liquid_level) {
@@ -59,6 +65,7 @@ exports.retrieve = async (podName, dataType, message) => {
                 let normalVal = true
                 let currentValue = messageJSON[sensorNames[key]]
                 let lastValue = crop.latest_data[key].value
+                const journalName = key.replace('_', ' ').toUpperCase()
 
                 // check if the value has increased/decreased
                 if (lastValue > currentValue) {
@@ -75,15 +82,27 @@ exports.retrieve = async (podName, dataType, message) => {
                         // trigger threshold push notification
                         if (currentValue < crop.threshold_values[key].min) {
                             notifier.setPayload(crop.pod_name, "min", key)
+
+                            journalTitle = '[' + journalName + ']' + ' Below minimum threshold value detected!'
+                            await journalController.createAutomatedJournalEntry(journalTitle, startEntryDate, endEntryDate, cropId)
                         } else {
                             notifier.setPayload(crop.pod_name, "max", key)
+
+                            journalTitle = '[' + journalName + ']' + ' Above maximum threshold value detected!'
+                            await journalController.createAutomatedJournalEntry(journalTitle, startEntryDate, endEntryDate, cropId)
                         }
+
+
+
                     }
                 } else if ((sensorNames[key] === 'contactless_liquid_level' && currentValue === 15) ||
                     (sensorNames[key] === 'reservoir_level' && currentValue !== 100)) {
                     normalVal = false
                     // trigger critical level push notification
                     notifier.setPayload(crop.pod_name, "critical", key)
+
+                    journalTitle = '[' + journalName + ']' + ' Critical level: refill needed'
+                    await journalController.createAutomatedJournalEntry(journalTitle, startEntryDate, endEntryDate, cropId)
                 }
 
                 // update latest_data property of crop
@@ -103,6 +122,7 @@ exports.retrieve = async (podName, dataType, message) => {
                 let normalVal = true
                 let currentValue = messageJSON[probeNames[key]]
                 let lastValue = crop.latest_data[key].value
+                const journalName = key.replace('_', ' ').toUpperCase()
 
                 // check if the value has increased/decreased
                 if (lastValue > currentValue) {
@@ -119,13 +139,24 @@ exports.retrieve = async (podName, dataType, message) => {
                         // trigger push notification
                         if (currentValue < crop.threshold_values[key].min) {
                             notifier.setPayload(crop.pod_name, "min", key)
+
+                            journalTitle = '[' + journalName + ']' + ' Below minimum threshold value detected!'
+                            await journalController.createAutomatedJournalEntry(journalTitle, startEntryDate, endEntryDate, cropId)
                         } else {
                             notifier.setPayload(crop.pod_name, "max", key)
+
+                            journalTitle = '[' + journalName + ']' + ' Above maximum threshold value detected!'
+                            await journalController.createAutomatedJournalEntry(journalTitle, startEntryDate, endEntryDate, cropId)
                         }
                     }
                 } else if (key === 'water_temperature') {
                     if (currentValue < 15 || currentValue > 24) {
                         normalVal = false
+
+                        notifier.setPayload(crop.pod_name, "reservoir", key)
+
+                        journalTitle = '[' + journalName + ']' + ' Critical temperature: mitigation needed'
+                        await journalController.createAutomatedJournalEntry(journalTitle, startEntryDate, endEntryDate, cropId)
                     }
                 }
 
