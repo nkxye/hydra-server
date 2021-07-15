@@ -27,7 +27,7 @@ class MqttClient {
     //     this.client = null
     //     this.host = process.env.LOCAL_URL
     //     this.port = process.env.MQTT_PORT
-    //     this.protocol = 'mqtts'
+    //     this.protocol = 'mqtt'
     //     this.key = key
     //     this.cert = cert
     //     this.caFile = caFile
@@ -40,8 +40,7 @@ class MqttClient {
             port: this.port,
             protocol: this.protocol,
             username: this.username,
-            password: this.password,
-            clean: true
+            password: this.password
         })
 
         // local MQTTS connect
@@ -49,7 +48,6 @@ class MqttClient {
         //     host: this.host,
         //     port: this.port,
         //     protocol: this.protocol,
-        // resubscribe: true
         //     key: this.key,
         //     cert: this.cert,
         //     ca: this.caFile,
@@ -63,6 +61,7 @@ class MqttClient {
 
         this.client.on('connect', async function () {
             console.log('Successfully connected to the MQTT broker.')
+            await sensorController.resubscribe()
         })
 
         this.client.on('message', async function (topic, message) {
@@ -74,8 +73,13 @@ class MqttClient {
 
     // subscribe to topic :podName/sensor_data/
     subscribeToPod(podName) {
-        this.client.subscribe(podName + '/sensor_data/')
-        this.client.subscribe(podName + '/probe_data/')
+        try {
+            this.client.subscribe(podName + '/sensor_data/')
+            this.client.subscribe(podName + '/probe_data/')
+            console.log('Subscription started for ' + podName.toUpperCase() + '.')
+        } catch (e) {
+            console.error(e.message)
+        }
     }
 
     // publish JSON to topic :podName/commands/new_crop/

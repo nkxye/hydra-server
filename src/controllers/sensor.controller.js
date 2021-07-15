@@ -1,7 +1,9 @@
 const SensorData = require('../models/sensor_data')
 const Sensor = require("../models/sensor")
 const Crop = require("../models/crop")
+const User = require("../models/user")
 const notifier = require('../middleware/notification')
+const mqttClient = require('../middleware/mqtt_client')
 
 /**
  * Retrieve Data.
@@ -45,7 +47,6 @@ exports.retrieve = async (podName, dataType, message) => {
         if (dataType === 'sensor_data') {
             // convert boolean to 15% and 100%
             if (messageJSON.contactless_liquid_level) {
-                console.log(messageJSON.contactless_liquid_level)
                 messageJSON.contactless_liquid_level = 100
             } else {
                 messageJSON.contactless_liquid_level = 15
@@ -121,6 +122,10 @@ exports.retrieve = async (podName, dataType, message) => {
                         } else {
                             notifier.setPayload(crop.pod_name, "max", key)
                         }
+                    }
+                } else if (key === 'water_temperature') {
+                    if (currentValue < 15 || currentValue > 24) {
+                        normalVal = false
                     }
                 }
 
@@ -240,5 +245,23 @@ updateBucket = async (sensor, cropId, newValue) => {
         })
 
         await newData.save()
+    }
+}
+
+/**
+ * Resubscribe to MQTT Topics.
+ *
+ * This function handles the resubscription of MQTT topics on boot.
+ *
+ * @param podName    Pod name assigned to the active crop.
+ */
+exports.resubscribe = async () => {
+    const user = await User.findOne({username: 'admin'})
+
+    for (let i = 0; i < user.pods_owned.length; i++) {
+        if (user.pods_owned[i].occupied) {
+            console.log('Resubscribing to topics for ' + user.pods_owned[i].pod_name.toUpperCase() + '...')
+            mqttClient.subscribeToPod(user.pods_owned[i].pod_name)
+        }
     }
 }
